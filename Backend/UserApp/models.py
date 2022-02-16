@@ -1,8 +1,15 @@
 from django.db import models
+from django.contrib.auth.models import AbstractUser, BaseUserManager, PermissionsMixin
 
 class Sede(models.Model):
     sede_codigo = models.BigAutoField(primary_key=True)
     sede_nombre = models.CharField(max_length=50)
+
+    def __str__(self):
+        str = ("SEDE\n"
+        f"sede_codigo: {self.sede_codigo},\n"
+        f"sede_nombre: {self.sede_nombre}")
+        return str
 
 
 class Caja(models.Model):
@@ -36,11 +43,6 @@ class ProgramaPublicidad(models.Model):
     ppublicidad_orden = models.BigIntegerField()
 
 
-class Rol(models.Model):
-    rol_codigo = models.BigAutoField(primary_key=True)
-    rol_nombre = models.CharField(max_length=50, blank=True, null=True)
-
-
 class Servicio(models.Model):
     servicio_codigo = models.BigAutoField(primary_key=True)
     servicio_nombre = models.CharField(unique=True, max_length=50)
@@ -62,9 +64,24 @@ class Turno(models.Model):
     persona_codigo = models.ForeignKey(Persona, models.DO_NOTHING)
 
 
-class Usuario(models.Model):
-    usuario_codigo = models.BigAutoField(primary_key=True)
-    usuario_login = models.CharField(max_length=50, blank=True, null=True)
-    usuario_clave = models.CharField(max_length=50, blank=True, null=True)
-    rol_codigo = models.ForeignKey(Rol, models.DO_NOTHING, blank=True, null=True)
-    sede_codigo = models.ForeignKey(Sede, models.DO_NOTHING)
+class Usuario(AbstractUser):
+    username = models.CharField(max_length = 150, unique = True)
+    email = models.EmailField(max_length = 150, unique = True, )
+    first_name = models.CharField(max_length = 150)
+    last_name = models.CharField(max_length = 150)
+    is_active = models.BooleanField(default = True)
+    is_staff = models.BooleanField(default = False)
+    sede_codigo = models.ForeignKey(Sede, models.DO_NOTHING, null=True)
+
+    REQUIRED_FIELDS = ['email','first_name','last_name']
+
+    def __str__(self):
+        str = ("USUARIO\n"
+        f"username: {self.username}"
+        f"email: {self.email}"
+        f"first_name: {self.first_name}"
+        f"last_name: {self.last_name}"
+        f"is_active: {self.is_active}"
+        f"is_staff: {self.is_staff}"
+        f"sede_codigo: {self.sede_codigo}")
+        return str

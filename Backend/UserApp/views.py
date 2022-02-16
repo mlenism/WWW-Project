@@ -7,18 +7,25 @@ from UserApp.serializers import UsuarioSerializer
 
 class UsuarioApi(APIView):
 
+    values = ['username', 'first_name', 'last_name', 'email',
+        'is_superuser', 'is_staff', 'is_active',
+        'date_joined', 'password']
+
     def get_object(self, pk):
         try:
             return Usuario.objects.get(pk=pk)
         except Usuario.DoesNotExist:
             raise Http404
 
-    def get(self, request, pk=0, format=None):
-        if pk == 0:
-            usuarios = Usuario.objects.all()
+    def get(self, request, pk=None, format=None):
+        if pk == None:
+            usuarios = Usuario.objects.all().values(*self.values)
             serializer = UsuarioSerializer(usuarios, many=True)
         else:
-            usuarios = self.get_object(pk)
+            try:
+                usuarios = Usuario.objects.values(*self.values).get(pk=pk)
+            except Usuario.DoesNotExist:
+                raise Http404
             serializer = UsuarioSerializer(usuarios)
         return Response(serializer.data)
 
