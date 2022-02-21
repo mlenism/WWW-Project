@@ -9,7 +9,7 @@ class UsuarioApi(APIView):
 
     values = ['username', 'first_name', 'last_name', 'email',
         'is_superuser', 'is_staff', 'is_active',
-        'date_joined', 'password']
+        'date_joined', 'password', 'sede_codigo__sede_nombre']
 
     def get_object(self, pk):
         try:

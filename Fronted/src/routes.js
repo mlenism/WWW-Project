@@ -10,7 +10,10 @@ import Products from './pages/Products';
 import Blog from './pages/Blog';
 import User from './pages/User';
 import NotFound from './pages/Page404';
-
+import Solicitud from './pages/Solicitud';
+import Cedula from './pages/Cedula';
+import Turnos from './pages/Turnos';
+import Confirmado from './pages/Confirmado';
 // ----------------------------------------------------------------------
 
 export default function Router() {
@@ -33,6 +36,10 @@ export default function Router() {
         { path: 'login', element: <Login /> },
         { path: 'register', element: <Register /> },
         { path: '404', element: <NotFound /> },
+        { path: 'solicitud', element: <Solicitud /> },
+        { path: 'cedula', element: <Cedula /> },
+        { path: 'turnos', element: <Turnos /> },
+        { path: 'confirmado', element: <Confirmado /> },
         { path: '/', element: <Navigate to="/dashboard" /> },
         { path: '*', element: <Navigate to="/404" /> }
       ]

@@ -10,6 +10,7 @@ import { BaseOptionChartStyle } from './components/charts/BaseOptionChart';
 // ----------------------------------------------------------------------
 
 export default function App() {
+  const prueba = ['hi'];
   return (
     <ThemeConfig>
       <ScrollToTop />

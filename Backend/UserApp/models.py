@@ -3,7 +3,7 @@ from django.contrib.auth.models import AbstractUser, BaseUserManager, Permission
 
 class Sede(models.Model):
     sede_codigo = models.BigAutoField(primary_key=True)
-    sede_nombre = models.CharField(max_length=50)
+    sede_nombre = models.CharField(max_length=50, unique=True)
 
     def __str__(self):
         str = ("SEDE\n"
@@ -66,12 +66,12 @@ class Turno(models.Model):
 
 class Usuario(AbstractUser):
     username = models.CharField(max_length = 150, unique = True)
-    email = models.EmailField(max_length = 150, unique = True, )
+    email = models.EmailField(max_length = 150, unique = True)
     first_name = models.CharField(max_length = 150)
     last_name = models.CharField(max_length = 150)
     is_active = models.BooleanField(default = True)
     is_staff = models.BooleanField(default = False)
-    sede_codigo = models.ForeignKey(Sede, models.DO_NOTHING, null=True)
+    sede_codigo = models.ForeignKey(Sede, models.DO_NOTHING, null=True, to_field='sede_nombre')
 
     REQUIRED_FIELDS = ['email','first_name','last_name']
 
