@@ -25,7 +25,22 @@ const RootStyle = styled(Page)(({ theme }) => ({
 // ----------------------------------------------------------------------
 
 export default function Cedula() {
-  const [completado, setCompletado] = React.useState(true);
+  const [texto, setTexto] = React.useState('');
+
+  function LlenarCedula(numero) {
+    setTexto(texto.concat(numero));
+  }
+
+  function Borrar() {
+    setTexto(texto.slice(0, -1));
+  }
+
+  function CampoLLeno() {
+    if (texto.length > 0) {
+      return false;
+    }
+    return true;
+  }
 
   return (
     <RootStyle title="404 Page Not Found | Minimal-UI">
@@ -41,49 +56,58 @@ export default function Cedula() {
               id="Cedula"
               label="Cedula"
               inputProps={{ inputMode: 'numeric' }}
-              checked={completado}
-              onChange={() => setCompletado(!completado)}
+              value={texto}
             />
             <Box sx={{ height: 260, mx: 'auto', my: { xs: 5, sm: 10 } }}>
               <Grid>
-                <Button size="large" variant="outlined" value="1">
+                <Button size="large" variant="outlined" onClick={() => LlenarCedula('1')}>
                   1
                 </Button>
-                <Button size="large" variant="outlined">
+                <Button size="large" variant="outlined" onClick={() => LlenarCedula('2')}>
                   2
                 </Button>
-                <Button size="large" variant="outlined">
+                <Button size="large" variant="outlined" onClick={() => LlenarCedula('3')}>
                   3
                 </Button>
               </Grid>
               <Grid>
-                <Button size="large" variant="outlined">
+                <Button size="large" variant="outlined" onClick={() => LlenarCedula('4')}>
                   4
                 </Button>
-                <Button size="large" variant="outlined">
+                <Button size="large" variant="outlined" onClick={() => LlenarCedula('5')}>
                   5
                 </Button>
-                <Button size="large" variant="outlined">
+                <Button size="large" variant="outlined" onClick={() => LlenarCedula('6')}>
                   6
                 </Button>
               </Grid>
               <Grid>
-                <Button size="large" variant="outlined">
+                <Button size="large" variant="outlined" onClick={() => LlenarCedula('7')}>
                   7
                 </Button>
-                <Button size="large" variant="outlined">
+                <Button size="large" variant="outlined" onClick={() => LlenarCedula('8')}>
                   8
                 </Button>
-                <Button size="large" variant="outlined">
+                <Button size="large" variant="outlined" onClick={() => LlenarCedula('9')}>
                   9
                 </Button>
               </Grid>
               <Grid>
-                <Button size="large" variant="outlined" Width="50">
+                <Button
+                  size="large"
+                  variant="outlined"
+                  Width="50"
+                  onClick={() => LlenarCedula('0')}
+                >
                   0
                 </Button>
                 <div />
-                <Button size="large" variant="outlined" endIcon={<BackspaceIcon />}>
+                <Button
+                  size="large"
+                  variant="outlined"
+                  endIcon={<BackspaceIcon />}
+                  onClick={() => Borrar()}
+                >
                   Borrar
                 </Button>
               </Grid>
@@ -97,7 +121,7 @@ export default function Cedula() {
                 size="large"
                 variant="contained"
                 component={RouterLink}
-                disabled={completado}
+                disabled={CampoLLeno()}
               >
                 Siguiente
               </Button>
