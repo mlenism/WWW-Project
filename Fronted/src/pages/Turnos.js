@@ -18,7 +18,8 @@ import {
   Container,
   Typography,
   TableContainer,
-  TablePagination
+  TablePagination,
+  TableHead
 } from '@mui/material';
 // components
 import Page from '../components/Page';
@@ -74,7 +75,12 @@ function Turnos() {
           <Scrollbar>
             <TableContainer sx={{ minWidth: 800 }}>
               <Table>
-                <UserListHead headLabel={TABLE_HEAD} rowCount={USERLIST.length} />
+                <TableHead>
+                  <TableRow>
+                    <TableCell align="center">Codigo Turno</TableCell>
+                    <TableCell align="center">Servicio</TableCell>
+                  </TableRow>
+                </TableHead>
                 <TableBody>
                   {USERLIST.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map(
                     (row) => {
@@ -82,14 +88,12 @@ function Turnos() {
 
                       return (
                         <TableRow hover key={codigoTurno} tabIndex={-1}>
-                          <TableCell component="th" scope="row" padding="none">
-                            <Stack direction="row" alignItems="center" spacing={2}>
-                              <Typography variant="subtitle2" noWrap>
-                                {codigoTurno}
-                              </Typography>
-                            </Stack>
+                          <TableCell align="center">
+                            <Typography variant="subtitle2" noWrap>
+                              {codigoTurno}
+                            </Typography>
                           </TableCell>
-                          <TableCell align="left">{servicio}</TableCell>
+                          <TableCell align="center">{servicio}</TableCell>
                         </TableRow>
                       );
                     }

@@ -1,4 +1,5 @@
 import { Link as RouterLink } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
 // material
 import { styled } from '@mui/material/styles';
 import { Card, Stack, Link, Container, Typography } from '@mui/material';
@@ -9,6 +10,7 @@ import Page from '../components/Page';
 import { MHidden } from '../components/@material-extend';
 import { LoginForm } from '../components/authentication/login';
 import AuthSocial from '../components/authentication/AuthSocial';
+import { getUsuarios, getUsuario, addUsuario } from '../apicore';
 
 // ----------------------------------------------------------------------
 
@@ -40,6 +42,37 @@ const ContentStyle = styled('div')(({ theme }) => ({
 // ----------------------------------------------------------------------
 
 export default function Login() {
+  const agregarUsuario = async () => {
+    const data = {
+      username: 'user_name31',
+      first_name: 'first_name31',
+      last_name: 'last_name31',
+      email: 'email31@hotmail.com',
+      sede_nombre: 'sede2',
+      password: 'contrasenia'
+    };
+
+    const response2 = await addUsuario(data);
+
+    console.log(response2);
+  };
+  useEffect(() => {
+    const response = getUsuarios();
+    console.log(response);
+    const response1 = getUsuario('1');
+    console.log(response1);
+    const data = {
+      username: 'user_name31',
+      first_name: 'first_name31',
+      last_name: 'last_name31',
+      email: 'email31@hotmail.com',
+      sede_nombre: 'sede2',
+      password: 'contrasenia'
+    };
+
+    agregarUsuario();
+  }, []);
+
   return (
     <RootStyle title="Login | Minimal-UI">
       <AuthLayout>
