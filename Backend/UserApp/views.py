@@ -14,19 +14,19 @@ class UsuarioApi(APIView):
         'is_superuser', 'is_staff', 'is_active',
         'date_joined', 'password', 'sede_codigo__sede_nombre']
 
-    def get_object(self, pk):
+    def get_object(self, username):
         try:
-            return Usuario.objects.get(pk=pk)
+            return Usuario.objects.get(username=username)
         except Usuario.DoesNotExist:
             raise Http404
 
-    def get(self, request, pk=None, format=None):
-        if pk == None:
+    def get(self, request, username=None, format=None):
+        if username == None:
             usuarios = Usuario.objects.all().values(*self.values)
             serializer = UsuarioSerializer(usuarios, many=True)
         else:
             try:
-                usuarios = Usuario.objects.values(*self.values).get(pk=pk)
+                usuarios = Usuario.objects.values(*self.values).get(username=username)
             except Usuario.DoesNotExist:
                 raise Http404
             serializer = UsuarioSerializer(usuarios)
@@ -39,8 +39,8 @@ class UsuarioApi(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def put(self, request, pk, format=None):
-        usuario = self.get_object(pk)
+    def put(self, request, username, format=None):
+        usuario = self.get_object(username)
         serializer = UsuarioSerializer(usuario, data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -81,7 +81,7 @@ class Aleatorio(APIView):
 			#respuesta="Ok  Limite %i  Random %s Servicio %i Fecha %s Hora %s " %(limite,id_servicio,obj_servicio.servicio_codigo,fecha_creacion,hora_creacion) 
 			#Se inserta el registros en BD
 			turno = Turno(turno_fecha=fecha_creacion,
-				truno_hora=hora_creacion,
+				turno_hora=hora_creacion,
 				servicio_codigo=obj_servicio,
 				turno_consecutivo=obj_servicio.servicio_consecutivoactual,
 				estado_codigo=obj_estado,
@@ -98,14 +98,14 @@ class TurnoTicket(APIView):
 		try:
 			obj_turno=Turno.objects.get(estado_codigo=4,caja_codigo_id=idcaja)
 			consulta="""SELECT *,99 as prioridadfinal FROM vw_turnos T, "UserApp_caja" c 
-			WHERE T.servicio_codigo_id=C.servicio_codigo AND T.turno_codigo=%s limit 1""" %obj_turno.turno_codigo
+			WHERE T.servicio_codigo_id=C.servicio_codigo_id AND T.turno_codigo=%s limit 1""" %obj_turno.turno_codigo
 		except Turno.DoesNotExist:
 			
 			consulta="""(SELECT *,99 as prioridadfinal FROM vw_turnos T, "UserApp_caja" c 
-			WHERE T.servicio_codigo_id=C.servicio_codigo AND C.caja_codigo_id= %s AND T.estado_codigo=1) UNION ALL   
+			WHERE T.servicio_codigo_id=C.servicio_codigo_id AND C.caja_codigo= %s AND T.estado_codigo=1) UNION ALL   
 			(SELECT *,prioridad as prioridadfinal FROM vw_turnos T, "UserApp_caja" c 
-			WHERE T.servicio_codigo_id=C.servicio_codigo AND C.caja_codigo_id!=%s  AND T.estado_codigo=1  
-			) ORDER BY prioridadfinal desc,turno_fecha asc,truno_hora asc limit 1 """%(idcaja,idcaja)
+			WHERE T.servicio_codigo_id=C.servicio_codigo_id AND C.caja_codigo!=%s  AND T.estado_codigo=1  
+			) ORDER BY prioridadfinal desc,turno_fecha asc,turno_hora asc limit 1 """%(idcaja,idcaja)
 		
 		
 		with connection.cursor() as cursor:

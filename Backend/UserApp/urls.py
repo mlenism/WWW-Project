@@ -4,7 +4,7 @@ from UserApp.views import UsuarioApi, Aleatorio, TurnoTicket
 
 urlpatterns = [
     path('usuarios', UsuarioApi.as_view()),
-    path('usuarios/<int:pk>/', UsuarioApi.as_view()),
+    path('usuarios/<username>/', UsuarioApi.as_view()),
     path('aleatorio/<int:limite>/',Aleatorio.as_view()),
     path('turno/<int:idcaja>/',TurnoTicket.as_view()),
 ]

@@ -85,8 +85,8 @@ class Servicio(models.Model):
 class Caja(models.Model):
     caja_codigo = models.BigAutoField(primary_key=True)
     caja_nombre = models.CharField(unique=True, max_length=50)
-    servicio_codigo = models.ForeignKey(Servicio, models.DO_NOTHING, null=True, to_field='servicio_nombre')
-    sede_codigo = models.ForeignKey(Sede, models.DO_NOTHING, null=True, to_field='sede_nombre')
+    servicio_codigo = models.ForeignKey(Servicio, models.DO_NOTHING, null=True)
+    sede_codigo = models.ForeignKey(Sede, models.DO_NOTHING, null=True)
 
     def __str__(self):
         str = ("CAJA\n"
@@ -106,7 +106,7 @@ class Turno(models.Model):
     servicio_codigo = models.ForeignKey(Servicio, models.DO_NOTHING)
     caja_codigo = models.ForeignKey(Caja, models.DO_NOTHING, blank=True, null=True)
     turno_consecutivo = models.BigIntegerField()
-    estado_codigo = models.ForeignKey(Estado, models.DO_NOTHING, to_field='estado_nombre')
+    estado_codigo = models.ForeignKey(Estado, models.DO_NOTHING)
     persona_codigo = models.ForeignKey(Persona, models.DO_NOTHING)
 
     def __str__(self):
@@ -131,7 +131,7 @@ class Usuario(AbstractUser):
     last_name = models.CharField(max_length = 150)
     is_active = models.BooleanField(default = True)
     is_staff = models.BooleanField(default = False)
-    sede_codigo = models.ForeignKey(Sede, models.DO_NOTHING, null=True, to_field='sede_nombre')
+    sede_codigo = models.ForeignKey(Sede, models.DO_NOTHING, null=True)
 
     REQUIRED_FIELDS = ['email','first_name','last_name']
 
