@@ -26,7 +26,7 @@ export default function Router() {
         { path: 'app', element: <DashboardApp /> },
         { path: 'user', element: <User /> },
         { path: 'products', element: <Products /> },
-        { path: 'turnos', element: <Turnos /> },
+
         { path: 'blog', element: <Blog /> }
       ]
     },
@@ -40,6 +40,7 @@ export default function Router() {
         { path: 'solicitud', element: <Solicitud /> },
         { path: 'cedula', element: <Cedula /> },
         { path: 'confirmado', element: <Confirmado /> },
+        { path: 'turnos', element: <Turnos /> },
         { path: '/', element: <Navigate to="/dashboard" /> },
         { path: '*', element: <Navigate to="/404" /> }
       ]

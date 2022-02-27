@@ -90,8 +90,7 @@ export default function User() {
   useEffect(() => {
     const usuarios = async () => {
       const response = await getUsuarios();
-
-      SETUSERLIST(response);
+      if (response !== undefined) SETUSERLIST(response);
       return response;
     };
     usuarios();
