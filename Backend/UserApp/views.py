@@ -3,10 +3,12 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.http import Http404, HttpResponse
 from django.db import connection
-from UserApp.models import Usuario, Turno, Servicio, Persona, Estado
+from django.conf import settings as django_settings
+from UserApp.models import Usuario, Turno, Servicio, Persona, Estado, Caja
 from UserApp.serializers import UsuarioSerializer
+from gtts import gTTS
 import random, datetime, pytz,json
-
+import os
 
 class UsuarioApi(APIView):
 
@@ -96,32 +98,40 @@ class TurnoTicket(APIView):
 	def get(self, request, idcaja, format=None):
 		
 		try:
-			obj_turno=Turno.objects.get(estado_codigo=4,caja_codigo_id=idcaja)
-			consulta="""SELECT *,99 as prioridadfinal FROM vw_turnos T, "UserApp_caja" c 
-			WHERE T.servicio_codigo_id=C.servicio_codigo_id AND T.turno_codigo=%s limit 1""" %obj_turno.turno_codigo
-		except Turno.DoesNotExist:
+			obj_caja   = Caja.objects.get(caja_codigo=idcaja)
+		
+
+			try:
+				obj_turno=Turno.objects.get(estado_codigo=4,caja_codigo_id=idcaja)
+				consulta="""SELECT *,99 as prioridadfinal FROM vw_turnos T, "UserApp_caja" c 
+				WHERE T.servicio_codigo_id=C.servicio_codigo_id AND T.turno_codigo=%s limit 1""" %obj_turno.turno_codigo
+			except Turno.DoesNotExist:
 			
-			consulta="""(SELECT *,99 as prioridadfinal FROM vw_turnos T, "UserApp_caja" c 
-			WHERE T.servicio_codigo_id=C.servicio_codigo_id AND C.caja_codigo= %s AND T.estado_codigo=1) UNION ALL   
-			(SELECT *,prioridad as prioridadfinal FROM vw_turnos T, "UserApp_caja" c 
-			WHERE T.servicio_codigo_id=C.servicio_codigo_id AND C.caja_codigo!=%s  AND T.estado_codigo=1  
-			) ORDER BY prioridadfinal desc,turno_fecha asc,turno_hora asc limit 1 """%(idcaja,idcaja)
+				consulta="""(SELECT *,99 as prioridadfinal FROM vw_turnos T, "UserApp_caja" c 
+				WHERE T.servicio_codigo_id=C.servicio_codigo_id AND C.caja_codigo= %s AND T.estado_codigo=1) UNION ALL   
+				(SELECT *,prioridad as prioridadfinal FROM vw_turnos T, "UserApp_caja" c 
+				WHERE T.servicio_codigo_id=C.servicio_codigo_id AND C.caja_codigo!=%s  AND T.estado_codigo=1  
+				) ORDER BY prioridadfinal desc,turno_fecha asc,turno_hora asc limit 1 """%(idcaja,idcaja)
 		
 		
-		with connection.cursor() as cursor:
-			cursor.execute(consulta)
-			row=dictfetchall(cursor)
-			#row = cursor.fetchall()
+			with connection.cursor() as cursor:
+				cursor.execute(consulta)
+				row=dictfetchall(cursor)
+				#row = cursor.fetchall()
 		
-		turno=row[0].get('turno_codigo')
-		obj_estado   = Estado.objects.get(estado_codigo=4)
-		obj_turno = Turno.objects.get(turno_codigo=turno)
-		obj_turno.estado_codigo=obj_estado
-		obj_turno.caja_codigo_id=idcaja
-		obj_turno.save()
-		
-		
-		return Response(row )
+			turno      =row[0].get('turno_codigo')
+			obj_estado = Estado.objects.get(estado_codigo=4)
+			obj_turno  = Turno.objects.get(turno_codigo=turno)
+			obj_turno.estado_codigo=obj_estado
+			obj_turno.caja_codigo_id=idcaja
+			obj_turno.save()
+			consecutivo = row[0].get('consecutivo')
+			tts("Turno "+consecutivo, 'es', django_settings.STATIC_ROOT+'/%s.mp3'%consecutivo) 
+
+			return Response(row )
+			
+		except Caja.DoesNotExist:
+			return Response(status=status.HTTP_204_NO_CONTENT)
 
 def dictfetchall(cursor):
     "Return all rows from a cursor as a dict"
@@ -130,3 +140,12 @@ def dictfetchall(cursor):
         dict(zip(columns, row))
         for row in cursor.fetchall()
     ]
+    
+def tts(texto, language, archivo):
+    if os.path.exists(archivo):
+        print ("File exist")
+    else:
+        print ("File not exist")
+        tts = gTTS(text=texto, lang=language, slow=False) 
+        # Guardamos el archivo de Audio
+        tts.save(archivo)
