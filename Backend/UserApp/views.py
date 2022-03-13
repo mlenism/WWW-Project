@@ -8,7 +8,8 @@ from django.http import Http404, HttpResponse
 from django.db import connection
 from django.conf import settings as django_settings
 from UserApp.models import Usuario, Turno, Servicio, Persona, Estado, Caja, Sede
-from UserApp.serializers import UsuarioSerializer, PostTurnoSerializer,TurnoSerializer, PostSedeSerializer, SedeSerializer
+from UserApp.serializers import UsuarioSerializer, PostTurnoSerializer, TurnoSerializer, PostSedeSerializer, SedeSerializer, PostServicioSerializer, ServicioSerializer, PostCajaSerializer, CajaSerializer
+from UserApp.serializers import PostEstadoSerializer, EstadoSerializer
 from gtts import gTTS
 
 import random, datetime, pytz,json
@@ -171,8 +172,6 @@ class TurnoController(viewsets.ModelViewSet):
 		except Caja.DoesNotExist:
 			return Response('Caja enviada no existe',status=status.HTTP_404_NOT_FOUND)
 
-
-
 class SedeController(viewsets.ModelViewSet):
 	queryset = Sede.objects.all()
 	serializer_class = PostSedeSerializer
@@ -203,7 +202,92 @@ class SedeController(viewsets.ModelViewSet):
 			serializer = SedeSerializer(sede)
 			return Response(serializer.data)		
 
+class ServicioController(viewsets.ModelViewSet):
+	queryset = Servicio.objects.all()
+	serializer_class = PostServicioSerializer
 
+	
+	@action(detail=True, methods=['post'])
+	def postServicio(self, request):
+		
+		serializer=ServicioSerializer(data=request.data)
+		
+		if serializer.is_valid():
+			serializer.save()
+			
+			return Response({'status':'Servicio Registrado'})
+		else:
+			return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+
+	@action(detail=True, methods=['get'])
+	def getServicio(self, request,idservicio=None):
+		if idservicio == None:
+			queryset = Servicio.objects.all()
+			serializer = ServicioSerializer(queryset, many=True)
+			return Response(serializer.data)
+		else:	
+			queryset = Servicio.objects.all()
+			servicio = get_object_or_404(queryset, pk=idservicio)
+			serializer = ServicioSerializer(servicio)
+			return Response(serializer.data)		
+
+class CajaController(viewsets.ModelViewSet):
+	queryset = Caja.objects.all()
+	serializer_class = PostCajaSerializer
+
+	
+	@action(detail=True, methods=['post'])
+	def postCaja(self, request):
+		
+		serializer=CajaSerializer(data=request.data)
+		
+		if serializer.is_valid():
+			serializer.save()
+			
+			return Response({'status':'Caja Registrado'})
+		else:
+			return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+
+	@action(detail=True, methods=['get'])
+	def getCaja(self, request,idcaja=None):
+		if idcaja == None:
+			queryset = Caja.objects.all()
+			serializer = CajaSerializer(queryset, many=True)
+			return Response(serializer.data)
+		else:	
+			queryset = Caja.objects.all()
+			caja = get_object_or_404(queryset, pk=idcaja)
+			serializer = CajaSerializer(caja)
+			return Response(serializer.data)		
+
+class EstadoController(viewsets.ModelViewSet):
+	queryset = Estado.objects.all()
+	serializer_class = PostEstadoSerializer
+
+	
+	@action(detail=True, methods=['post'])
+	def postEstado(self, request):
+		
+		serializer=EstadoSerializer(data=request.data)
+		
+		if serializer.is_valid():
+			serializer.save()
+			
+			return Response({'status':'Estado Registrado'})
+		else:
+			return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+
+	@action(detail=True, methods=['get'])
+	def getEstado(self, request,idestado=None):
+		if idestado == None:
+			queryset = Estado.objects.all()
+			serializer = EstadoSerializer(queryset, many=True)
+			return Response(serializer.data)
+		else:	
+			queryset = Estado.objects.all()
+			estado = get_object_or_404(queryset, pk=idestado)
+			serializer = EstadoSerializer(estado)
+			return Response(serializer.data)		
 
 def dictfetchall(cursor):
     "Return all rows from a cursor as a dict"

@@ -72,8 +72,8 @@ class Servicio(models.Model):
     servicio_codigo = models.BigAutoField(primary_key=True)
     servicio_nombre = models.CharField(unique=True, max_length=50)
     servicio_prefijo = models.CharField(unique=True, max_length=2)
-    servicio_prioridad = models.FloatField(blank=True, null=True)
-    servicio_consecutivoactual = models.BigIntegerField()
+    servicio_prioridad = models.FloatField(blank=True, null=True, default='0')
+    servicio_consecutivoactual = models.BigIntegerField(default='0')
 
     def __str__(self):
         str = ("SERVICIO\n"
@@ -90,6 +90,8 @@ class Caja(models.Model):
     caja_nombre = models.CharField(unique=True, max_length=50)
     servicio_codigo = models.ForeignKey(Servicio, models.DO_NOTHING, null=True)
     sede_codigo = models.ForeignKey(Sede, models.DO_NOTHING, null=True)
+
+    REQUIRED_FIELDS = ['caja_codigo','caja_nombre','servicio_codigo','sede_codigo']
 
     def __str__(self):
         str = ("CAJA\n"

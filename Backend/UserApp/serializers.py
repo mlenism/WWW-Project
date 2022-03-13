@@ -1,6 +1,6 @@
 import imp
 from rest_framework import serializers
-from UserApp.models import Usuario, Sede, Turno
+from UserApp.models import Usuario, Sede, Turno, Caja, Servicio, Estado
 
 
 class UsuarioSerializer(serializers.ModelSerializer):
@@ -73,8 +73,61 @@ class SedeSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
 		
         sede = Sede(**validated_data)
-        sede.sede_nombre=sede.sede_nombre
         sede.save()
        
         return sede.__dict__
 
+class PostServicioSerializer(serializers.ModelSerializer):
+   
+    class Meta:
+        model = Servicio
+        fields = ('servicio_codigo','servicio_nombre', 'servicio_prefijo', 'servicio_prioridad')
+
+class ServicioSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Servicio
+        fields = '__all__'
+		
+    def create(self, validated_data):
+		
+        servicio = Servicio(**validated_data)
+        servicio.save()
+       
+        return servicio.__dict__
+
+class PostCajaSerializer(serializers.ModelSerializer):
+   
+    class Meta:
+        model = Caja
+        fields = ('caja_codigo','caja_nombre','servicio_codigo','sede_codigo')
+
+class CajaSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Caja
+        fields = '__all__'
+		
+    def create(self, validated_data):
+		
+        caja = Caja(**validated_data)
+        caja.save()
+       
+        return caja.__dict__
+
+class PostEstadoSerializer(serializers.ModelSerializer):
+   
+    class Meta:
+        model = Estado
+        fields = ('estado_codigo','estado_nombre')
+
+class EstadoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Estado
+        fields = '__all__'
+		
+    def create(self, validated_data):
+		
+        estado = Estado(**validated_data)
+        estado.save()
+       
+        return estado.__dict__
