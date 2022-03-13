@@ -1,6 +1,6 @@
 from django.urls import path
 from rest_framework.urlpatterns import format_suffix_patterns
-from UserApp.views import UsuarioApi, Aleatorio, TurnoController, SedeController, ServicioController, CajaController, EstadoController
+from UserApp.views import UsuarioApi, Aleatorio, TurnoController, SedeController, ServicioController, CajaController, EstadoController, PersonaController
 
 urlpatterns = [
     path('usuarios', UsuarioApi.as_view()),
@@ -21,6 +21,11 @@ urlpatterns = [
 
     path('estado',EstadoController.as_view({'post': 'postEstado' ,'get': 'getEstado'})),
     path('estado/<int:idestado>/',EstadoController.as_view({'get': 'getEstado'})),
+
+    path('persona',PersonaController.as_view({'post': 'postPersona' ,'get': 'getPersona'})),
+    path('persona/<int:idpersona>/',PersonaController.as_view({'get': 'getPersona'})),
+    path('persona/<str:docpersona>/',PersonaController.as_view({'get': 'getPersona'})),
+
 
 
 ]

@@ -28,7 +28,7 @@ class Estado(models.Model):
 
 
 class Persona(models.Model):
-    persona_codigo = models.BigIntegerField(primary_key=True)
+    persona_codigo = models.BigAutoField(primary_key=True)
     persona_nombre = models.CharField(max_length=50)
     persona_documento = models.CharField(max_length=20, unique=True)
 

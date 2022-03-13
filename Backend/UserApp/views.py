@@ -9,7 +9,7 @@ from django.db import connection
 from django.conf import settings as django_settings
 from UserApp.models import Usuario, Turno, Servicio, Persona, Estado, Caja, Sede
 from UserApp.serializers import UsuarioSerializer, PostTurnoSerializer, TurnoSerializer, PostSedeSerializer, SedeSerializer, PostServicioSerializer, ServicioSerializer, PostCajaSerializer, CajaSerializer
-from UserApp.serializers import PostEstadoSerializer, EstadoSerializer
+from UserApp.serializers import PostEstadoSerializer, EstadoSerializer, PostPersonaSerializer, PersonaSerializer
 from gtts import gTTS
 
 import random, datetime, pytz,json
@@ -288,6 +288,37 @@ class EstadoController(viewsets.ModelViewSet):
 			estado = get_object_or_404(queryset, pk=idestado)
 			serializer = EstadoSerializer(estado)
 			return Response(serializer.data)		
+
+class PersonaController(viewsets.ModelViewSet):
+	queryset = Persona.objects.all()
+	serializer_class = PostPersonaSerializer
+
+	
+	@action(detail=True, methods=['post'])
+	def postPersona(self, request):
+		
+		serializer=PersonaSerializer(data=request.data)
+		
+		if serializer.is_valid():
+			serializer.save()
+			
+			return Response({'status':'Persona Registrado'})
+		else:
+			return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+
+	@action(detail=True, methods=['get'])
+	def getPersona(self, request,idpersona=None):
+		if idpersona == None:
+			queryset = Persona.objects.all()
+			serializer = PersonaSerializer(queryset, many=True)
+			return Response(serializer.data)
+		else:	
+			queryset = Persona.objects.all()
+			persona = get_object_or_404(queryset, pk=idpersona)
+			serializer = PersonaSerializer(persona)
+			return Response(serializer.data)		
+
+
 
 def dictfetchall(cursor):
     "Return all rows from a cursor as a dict"

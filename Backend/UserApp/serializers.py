@@ -1,6 +1,6 @@
 import imp
 from rest_framework import serializers
-from UserApp.models import Usuario, Sede, Turno, Caja, Servicio, Estado
+from UserApp.models import Usuario, Sede, Turno, Caja, Servicio, Estado, Persona
 
 
 class UsuarioSerializer(serializers.ModelSerializer):
@@ -131,3 +131,22 @@ class EstadoSerializer(serializers.ModelSerializer):
         estado.save()
        
         return estado.__dict__
+
+class PostPersonaSerializer(serializers.ModelSerializer):
+   
+    class Meta:
+        model = Persona
+        fields = ('persona_codigo','persona_nombre','persona_documento')
+
+class PersonaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Persona
+        fields = '__all__'
+		
+    def create(self, validated_data):
+		
+        persona = Persona(**validated_data)
+        persona.save()
+       
+        return persona.__dict__
+
