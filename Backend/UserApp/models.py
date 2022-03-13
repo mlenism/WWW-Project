@@ -2,6 +2,9 @@ from enum import unique
 from django.db import models
 from django.contrib.auth.models import AbstractUser, BaseUserManager, PermissionsMixin
 
+
+
+
 class Sede(models.Model):
     sede_codigo = models.BigAutoField(primary_key=True)
     sede_nombre = models.CharField(max_length=50, unique=True)
@@ -98,30 +101,32 @@ class Caja(models.Model):
 
 
 class Turno(models.Model):
-    turno_codigo = models.BigAutoField(primary_key=True)
-    turno_fecha = models.DateField()
-    turno_hora = models.TimeField()
-    turno_fechaejecucion = models.DateField(blank=True, null=True)
-    turno_horaejecucion = models.TimeField(blank=True, null=True)
-    servicio_codigo = models.ForeignKey(Servicio, models.DO_NOTHING)
-    caja_codigo = models.ForeignKey(Caja, models.DO_NOTHING, blank=True, null=True)
-    turno_consecutivo = models.BigIntegerField()
-    estado_codigo = models.ForeignKey(Estado, models.DO_NOTHING)
-    persona_codigo = models.ForeignKey(Persona, models.DO_NOTHING)
+	turno_codigo = models.BigAutoField(primary_key=True)
+	turno_fecha = models.DateField(auto_now_add=True, blank=True)
+	turno_hora = models.TimeField(auto_now_add=True, blank=True)
+	turno_fechaejecucion = models.DateField(blank=True, null=True)
+	turno_horaejecucion = models.TimeField(blank=True, null=True)
+	servicio_codigo = models.ForeignKey(Servicio, models.DO_NOTHING)
+	caja_codigo = models.ForeignKey(Caja, models.DO_NOTHING, blank=True, null=True)
+	turno_consecutivo = models.BigIntegerField()
+	estado_codigo = models.ForeignKey(Estado, models.DO_NOTHING)
+	persona_codigo = models.ForeignKey(Persona, models.DO_NOTHING)
 
-    def __str__(self):
-        str = ("TURNO\n"
-        f"turno_codigo: {self.turno_codigo},\n"
-        f"turno_fecha: {self.turno_fecha},\n"
-        f"turno_hora: {self.turno_hora},\n"
-        f"turno_fechaejecucion: {self.turno_fechaejecucion},\n"
-        f"turno_horaejecucion: {self.turno_horaejecucion},\n"
-        f"servicio_codigo: {self.servicio_codigo},\n"
-        f"caja_codigo: {self.caja_codigo},\n"
-        f"turno_consecutivo: {self.turno_consecutivo},\n"
-        f"estado_codigo: {self.estado_codigo},\n"
-        f"persona_codigo: {self.persona_codigo}")
-        return str
+	REQUIRED_FIELDS = ['servicio_codigo','turno_consecutivo','persona_codigo','estado_codigo']
+
+	def __str__(self):
+		str = ("TURNO\n"
+		f"turno_codigo: {self.turno_codigo},\n"
+		f"turno_fecha: {self.turno_fecha},\n"
+		f"turno_hora: {self.turno_hora},\n"
+		f"turno_fechaejecucion: {self.turno_fechaejecucion},\n"
+		f"turno_horaejecucion: {self.turno_horaejecucion},\n"
+		f"servicio_codigo: {self.servicio_codigo},\n"
+		f"caja_codigo: {self.caja_codigo},\n"
+		f"turno_consecutivo: {self.turno_consecutivo},\n"
+		f"estado_codigo: {self.estado_codigo},\n"
+		f"persona_codigo: {self.persona_codigo}")
+		return str
 
 
 class Usuario(AbstractUser):

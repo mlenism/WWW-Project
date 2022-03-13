@@ -1,12 +1,16 @@
+from django.shortcuts import get_object_or_404
 from rest_framework.views import APIView
+from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.decorators import action
 from django.http import Http404, HttpResponse
 from django.db import connection
 from django.conf import settings as django_settings
-from UserApp.models import Usuario, Turno, Servicio, Persona, Estado, Caja
-from UserApp.serializers import UsuarioSerializer
+from UserApp.models import Usuario, Turno, Servicio, Persona, Estado, Caja, Sede
+from UserApp.serializers import UsuarioSerializer, PostTurnoSerializer,TurnoSerializer, PostSedeSerializer, SedeSerializer
 from gtts import gTTS
+
 import random, datetime, pytz,json
 import os
 
@@ -93,9 +97,43 @@ class Aleatorio(APIView):
 		respuesta="Turnos Aleatorios Creados"
 		return HttpResponse(respuesta )
 
-class TurnoTicket(APIView):
+class TurnoController(viewsets.ModelViewSet):
+	queryset = Turno.objects.all()
+	serializer_class = PostTurnoSerializer
+
 	
-	def get(self, request, idcaja, format=None):
+	@action(detail=True, methods=['post'])
+	def postTurno(self, request):
+		dataTurno={}
+		dataTurno['estado_codigo']=1		
+		dataTurno['servicio_codigo']=request.data['servicio_codigo']
+		dataTurno['persona_codigo']=request.data['persona_codigo']
+		
+
+		try:
+			obj_servicio = Servicio.objects.get(servicio_codigo=request.data['servicio_codigo'])
+			obj_servicio.servicio_consecutivoactual=obj_servicio.servicio_consecutivoactual+1
+			obj_servicio.save()
+			
+			dataTurno['turno_consecutivo'] = obj_servicio.servicio_consecutivoactual
+			respuesta = 'Consecutivo creado '+obj_servicio.servicio_prefijo+'-'+str(obj_servicio.servicio_consecutivoactual)
+		except Servicio.DoesNotExist:
+			return Response('Servicio enviado no existe',status=status.HTTP_400_BAD_REQUEST)
+
+
+		serializer=TurnoSerializer(data=dataTurno)
+		
+		if serializer.is_valid():
+			serializer.save()
+			
+			return Response({'status':respuesta})
+		else:
+			return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+
+	@action(detail=True, methods=['get'])
+	def getTurno(self, request,idcaja=None):
+		if idcaja == None:
+			return Response(status=status.HTTP_204_NO_CONTENT)
 		
 		try:
 			obj_caja   = Caja.objects.get(caja_codigo=idcaja)
@@ -131,7 +169,41 @@ class TurnoTicket(APIView):
 			return Response(row )
 			
 		except Caja.DoesNotExist:
-			return Response(status=status.HTTP_204_NO_CONTENT)
+			return Response('Caja enviada no existe',status=status.HTTP_404_NOT_FOUND)
+
+
+
+class SedeController(viewsets.ModelViewSet):
+	queryset = Sede.objects.all()
+	serializer_class = PostSedeSerializer
+
+	
+	@action(detail=True, methods=['post'])
+	def postSede(self, request):
+		
+
+		serializer=SedeSerializer(data=request.data)
+		
+		if serializer.is_valid():
+			serializer.save()
+			
+			return Response({'status':'Sede Ingresada'})
+		else:
+			return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+
+	@action(detail=True, methods=['get'])
+	def getSede(self, request,idsede=None):
+		if idsede == None:
+			queryset = Sede.objects.all()
+			serializer = SedeSerializer(queryset, many=True)
+			return Response(serializer.data)
+		else:	
+			queryset = Sede.objects.all()
+			sede = get_object_or_404(queryset, pk=idsede)
+			serializer = SedeSerializer(sede)
+			return Response(serializer.data)		
+
+
 
 def dictfetchall(cursor):
     "Return all rows from a cursor as a dict"
