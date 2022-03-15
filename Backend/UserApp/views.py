@@ -203,7 +203,23 @@ class SedeController(viewsets.ModelViewSet):
 			queryset = Sede.objects.all()
 			sede = get_object_or_404(queryset, pk=idsede)
 			serializer = SedeSerializer(sede)
-			return Response(serializer.data)		
+			return Response(serializer.data)
+
+	@action(detail=True, methods=['put'])
+	def putSede(self, request):
+		
+		sede = self.get_object(request.data["sede_codigo"])
+		serializer = SedeSerializer(sede, data=request.data)
+		if serializer.is_valid():
+			serializer.save()
+			return Response(serializer.data)
+		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)		
+	
+	def get_object(self, sede_codigo):
+		try:
+			return Sede.objects.get(sede_codigo=sede_codigo)
+		except Sede.DoesNotExist:
+			raise Http404		
 
 class ServicioController(viewsets.ModelViewSet):
 	queryset = Servicio.objects.all()
@@ -232,7 +248,31 @@ class ServicioController(viewsets.ModelViewSet):
 			queryset = Servicio.objects.all()
 			servicio = get_object_or_404(queryset, pk=idservicio)
 			serializer = ServicioSerializer(servicio)
-			return Response(serializer.data)		
+			return Response(serializer.data)
+
+
+	@action(detail=True, methods=['put'])
+	def putServicio(self, request):
+		
+		servicio = self.get_object(request.data["servicio_codigo"])
+		serializer = ServicioSerializer(servicio, data=request.data)
+		if serializer.is_valid():
+			serializer.save()
+			return Response(serializer.data)
+		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)		
+	
+	@action(detail=True, methods=['post'])
+	def postInicializarServicio(self, request):
+		
+		Servicio.objects.filter(servicio_codigo=request.data["servicio_codigo"]).update(servicio_consecutivoactual='0')
+		return Response({'status':'Consecutivos inicializados'})
+
+
+	def get_object(self, servicio_codigo):
+		try:
+			return Servicio.objects.get(publicidad_codigo=servicio_codigo)
+		except Servicio.DoesNotExist:
+			raise Http404		
 
 class CajaController(viewsets.ModelViewSet):
 	queryset = Caja.objects.all()
@@ -261,7 +301,24 @@ class CajaController(viewsets.ModelViewSet):
 			queryset = Caja.objects.all()
 			caja = get_object_or_404(queryset, pk=idcaja)
 			serializer = CajaSerializer(caja)
-			return Response(serializer.data)		
+			return Response(serializer.data)
+
+	@action(detail=True, methods=['put'])
+	def putCaja(self, request):
+		
+		caja = self.get_object(request.data["caja_codigo"])
+		serializer = CajaSerializer(caja, data=request.data)
+		if serializer.is_valid():
+			serializer.save()
+			return Response(serializer.data)
+		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)		
+	
+	def get_object(self, caja_codigo):
+		try:
+			return Caja.objects.get(caja_codigo=caja_codigo)
+		except Caja.DoesNotExist:
+			raise Http404
+
 
 class EstadoController(viewsets.ModelViewSet):
 	queryset = Estado.objects.all()
@@ -290,7 +347,23 @@ class EstadoController(viewsets.ModelViewSet):
 			queryset = Estado.objects.all()
 			estado = get_object_or_404(queryset, pk=idestado)
 			serializer = EstadoSerializer(estado)
-			return Response(serializer.data)		
+			return Response(serializer.data)
+
+	@action(detail=True, methods=['put'])
+	def putEstado(self, request):
+		
+		estado = self.get_object(request.data["estado_codigo"])
+		serializer = EstadoSerializer(estado, data=request.data)
+		if serializer.is_valid():
+			serializer.save()
+			return Response(serializer.data)
+		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)		
+	
+	def get_object(self, estado_codigo):
+		try:
+			return Estado.objects.get(estado_codigo=estado_codigo)
+		except Estado.DoesNotExist:
+			raise Http404		
 
 class PersonaController(viewsets.ModelViewSet):
 	queryset = Persona.objects.all()
@@ -319,8 +392,23 @@ class PersonaController(viewsets.ModelViewSet):
 			queryset = Persona.objects.all()
 			persona = get_object_or_404(queryset, pk=idpersona)
 			serializer = PersonaSerializer(persona)
-			return Response(serializer.data)		
+			return Response(serializer.data)	
 
+	@action(detail=True, methods=['put'])
+	def putPersona(self, request):
+		
+		persona = self.get_object(request.data["persona_codigo"])
+		serializer = PersonaSerializer(persona, data=request.data)
+		if serializer.is_valid():
+			serializer.save()
+			return Response(serializer.data)
+		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)		
+	
+	def get_object(self, persona_codigo):
+		try:
+			return Persona.objects.get(persona_codigo=persona_codigo)
+		except Persona.DoesNotExist:
+			raise Http404
 
 class PublicidadController(viewsets.ModelViewSet):
     
@@ -365,8 +453,21 @@ class PublicidadController(viewsets.ModelViewSet):
 			serializer = PublicidadSerializer(persona)
 			return Response(serializer.data)		
 
-	def perform_create(self, serializer):
-		serializer.save(owner=self.request.user, datafile=self.request.data.get('datafile'))
+	@action(detail=True, methods=['put'])
+	def putPublicidad(self, request):
+		
+		publicidad = self.get_object(request.data["publicidad_codigo"])
+		serializer = PublicidadSerializer(publicidad, data=request.data)
+		if serializer.is_valid():
+			serializer.save()
+			return Response(serializer.data)
+		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)		
+	
+	def get_object(self, publicidad_codigo):
+		try:
+			return Publicidad.objects.get(publicidad_codigo=publicidad_codigo)
+		except Publicidad.DoesNotExist:
+			raise Http404
 
 
 def dictfetchall(cursor):

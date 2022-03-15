@@ -116,6 +116,11 @@ class CajaSerializer(serializers.ModelSerializer):
        
         return caja.__dict__
 
+    def update(self, instance, validated_data):
+        caja: Caja = super().update(instance, validated_data)
+        caja.save()
+        return caja.__dict__
+
 class PostEstadoSerializer(serializers.ModelSerializer):
    
     class Meta:
