@@ -1,3 +1,4 @@
+from dataclasses import field
 import imp
 
 from rest_framework import serializers
@@ -6,11 +7,15 @@ from UserApp.models import Usuario, Sede, Turno, Caja, Servicio, Estado, Persona
 
 
 class UsuarioSerializer(serializers.ModelSerializer):
-    sede_nombre = serializers.SlugRelatedField(source='sede_codigo', allow_null=True, queryset=Sede.objects.all(), required=False, slug_field='sede_nombre')
+    sede_nombre = serializers.SlugRelatedField(
+        source='sede_codigo', allow_null=True,
+        queryset=Sede.objects.all(), required=False,
+        slug_field='sede_nombre')
 
     class Meta:
         model = Usuario
-        fields = '__all__'
+        fields = ['username','first_name','last_name','email',
+            'is_superuser','is_staff','sede_nombre','password']
 
     def create(self, validated_data):
         usuario = Usuario(**validated_data)
@@ -25,10 +30,8 @@ class UsuarioSerializer(serializers.ModelSerializer):
         return usuario.__dict__
 
     def to_representation(self, instance):
-        if 'sede_codigo__sede_nombre' in instance:
-            sede_nombre = instance['sede_codigo__sede_nombre']
-        else:
-            sede_nombre = instance['sede_codigo_id']
+        if 'sede_codigo_id' in instance:
+            return {'status': 'ok'}
         return {
             'username': instance['username'],
             'first_name': instance['first_name'],
@@ -36,10 +39,7 @@ class UsuarioSerializer(serializers.ModelSerializer):
             'email': instance['email'],
             'is_superuser': instance['is_superuser'],
             'is_staff': instance['is_staff'],
-            'is_active': instance['is_active'],
-            'date_joined': instance['date_joined'],
-            'sede_nombre': sede_nombre,
-            'password': instance['password'],
+            'sede_nombre': instance['sede_codigo__sede_nombre']
         }
 
 

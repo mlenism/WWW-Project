@@ -143,20 +143,19 @@ class Usuario(AbstractUser):
     email = models.EmailField(max_length = 150, unique = True)
     first_name = models.CharField(max_length = 150)
     last_name = models.CharField(max_length = 150)
-    is_active = models.BooleanField(default = True)
-    is_staff = models.BooleanField(default = False)
     sede_codigo = models.ForeignKey(Sede, models.DO_NOTHING, null=True)
 
     REQUIRED_FIELDS = ['email','first_name','last_name']
 
     def __str__(self):
         str = ("USUARIO\n"
-        f"username: {self.username}"
-        f"email: {self.email}"
-        f"first_name: {self.first_name}"
-        f"last_name: {self.last_name}"
-        f"is_active: {self.is_active}"
-        f"is_staff: {self.is_staff}"
+        f"username: {self.username}\n"
+        f"email: {self.email}\n"
+        f"first_name: {self.first_name}\n"
+        f"last_name: {self.last_name}\n"
+        f"is_active: {self.is_active}\n"
+        f"is_staff: {self.is_staff}\n"
+        f"is_active: {self.is_active}\n"
         f"sede_codigo: {self.sede_codigo}")
         return str
 

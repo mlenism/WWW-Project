@@ -21,47 +21,48 @@ import os
 
 class UsuarioApi(APIView):
 
-    values = ['username', 'first_name', 'last_name', 'email',
-        'is_superuser', 'is_staff', 'is_active',
-        'date_joined', 'password', 'sede_codigo__sede_nombre']
+	values = ['username', 'first_name', 'last_name', 'email',
+		'is_superuser', 'is_staff', 'is_active',
+		'date_joined', 'password', 'sede_codigo__sede_nombre']
 
-    def get_object(self, username):
-        try:
-            return Usuario.objects.get(username=username)
-        except Usuario.DoesNotExist:
-            raise Http404
+	def get_object(self, username):
+		try:
+			return Usuario.objects.get(username=username)
+		except Usuario.DoesNotExist:
+			raise Http404
 
-    def get(self, request, username=None, format=None):
-        if username == None:
-            usuarios = Usuario.objects.all().values(*self.values)
-            serializer = UsuarioSerializer(usuarios, many=True)
-        else:
-            try:
-                usuarios = Usuario.objects.values(*self.values).get(username=username)
-            except Usuario.DoesNotExist:
-                raise Http404
-            serializer = UsuarioSerializer(usuarios)
-        return Response(serializer.data)
+	def get(self, request, username=None, format=None):
+		if username == None:
+			usuarios = Usuario.objects.all().exclude(is_active=False).values(*self.values)
+			serializer = UsuarioSerializer(usuarios, many=True)
+		else:
+			try:
+				usuarios = Usuario.objects.exclude(is_active=False).values(*self.values).get(username=username)
+			except Usuario.DoesNotExist:
+				raise Http404
+			serializer = UsuarioSerializer(usuarios)
+		return Response(serializer.data)
 
-    def post(self, request, format=None):
-        serializer = UsuarioSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+	def post(self, request, format=None):
+		serializer = UsuarioSerializer(data=request.data)
+		if serializer.is_valid():
+			serializer.save()
+			return Response(serializer.data, status=status.HTTP_201_CREATED)
+		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def put(self, request, username, format=None):
-        usuario = self.get_object(username)
-        serializer = UsuarioSerializer(usuario, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+	def put(self, request, username, format=None):
+		usuario = self.get_object(username)
+		serializer = UsuarioSerializer(usuario, data=request.data)
+		if serializer.is_valid():
+			serializer.save()
+			return Response(serializer.data)
+		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def delete(self, request, pk, format=None):
-        usuario = self.get_object(pk)
-        usuario.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+	def delete(self, request, username, format=None):
+		usuario: Usuario = self.get_object(username)
+		usuario.is_active = False
+		usuario.save()
+		return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class Aleatorio(APIView):
