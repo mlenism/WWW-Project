@@ -41,9 +41,16 @@ class Persona(models.Model):
 
 
 class Publicidad(models.Model):
+
+    TYPE_CHOICES = (
+        ("IMAGEN", "IMAGEN"),
+        ("VIDEO", "VIDEO"),
+        ("AUDIO", "AUDIO"),
+    )
     publicidad_codigo = models.BigAutoField(primary_key=True)
-    publicidad_tipo = models.CharField(max_length=50)
+    publicidad_tipo = models.CharField(max_length=50, choices=TYPE_CHOICES)
     publicidad_ruta = models.TextField()
+    
 
     def __str__(self):
         str = ("PUBLICIDAD\n"
@@ -152,3 +159,6 @@ class Usuario(AbstractUser):
         f"is_staff: {self.is_staff}"
         f"sede_codigo: {self.sede_codigo}")
         return str
+
+
+    

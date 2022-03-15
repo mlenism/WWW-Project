@@ -1,6 +1,8 @@
 import imp
+
 from rest_framework import serializers
-from UserApp.models import Usuario, Sede, Turno, Caja, Servicio, Estado, Persona
+from rest_framework.serializers import  FileField
+from UserApp.models import Usuario, Sede, Turno, Caja, Servicio, Estado, Persona, Publicidad
 
 
 class UsuarioSerializer(serializers.ModelSerializer):
@@ -150,3 +152,21 @@ class PersonaSerializer(serializers.ModelSerializer):
        
         return persona.__dict__
 
+
+class PostPublicidadSerializer(serializers.ModelSerializer):
+    file_uploaded = FileField()
+    class Meta:
+        model = Publicidad
+        fields = ('publicidad_tipo','file_uploaded')
+
+class PublicidadSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Publicidad
+        fields = '__all__'
+
+    def create(self, validated_data):
+		
+        publicidad = Publicidad(**validated_data)
+        publicidad.save()
+       
+        return publicidad.__dict__

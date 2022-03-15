@@ -7,9 +7,12 @@ from rest_framework.decorators import action
 from django.http import Http404, HttpResponse
 from django.db import connection
 from django.conf import settings as django_settings
-from UserApp.models import Usuario, Turno, Servicio, Persona, Estado, Caja, Sede
+from UserApp.models import Usuario, Turno, Servicio, Persona, Estado, Caja, Sede, Publicidad
 from UserApp.serializers import UsuarioSerializer, PostTurnoSerializer, TurnoSerializer, PostSedeSerializer, SedeSerializer, PostServicioSerializer, ServicioSerializer, PostCajaSerializer, CajaSerializer
-from UserApp.serializers import PostEstadoSerializer, EstadoSerializer, PostPersonaSerializer, PersonaSerializer
+from UserApp.serializers import PostEstadoSerializer, EstadoSerializer, PostPersonaSerializer, PersonaSerializer, PostPublicidadSerializer, PublicidadSerializer
+from django.core.files.storage import default_storage
+from django.core.files.base import ContentFile
+
 from gtts import gTTS
 
 import random, datetime, pytz,json
@@ -318,6 +321,41 @@ class PersonaController(viewsets.ModelViewSet):
 			serializer = PersonaSerializer(persona)
 			return Response(serializer.data)		
 
+
+class PublicidadController(viewsets.ModelViewSet):
+    
+	queryset = Publicidad.objects.all()
+	serializer_class = PostPublicidadSerializer
+
+	@action(detail=True, methods=['post'])
+	def postPublicidad(self, request):
+		
+		serializer=PublicidadSerializer(data=request.data)
+		print(self.request.data.get('file_uploaded'))
+		content=self.request.FILES.get('file_uploaded')
+		print(content.name)
+		default_storage.save(django_settings.STATIC_ROOT+'/'+content.name, ContentFile(content.read()))
+		if serializer.is_valid():
+			serializer.save()
+			
+			return Response({'status':'Publicidad Registrado'})
+		else:
+			return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+
+	@action(detail=True, methods=['get'])
+	def getPublicidad(self, request,idpublicidad=None):
+		if idpublicidad == None:
+			queryset = Publicidad.objects.all()
+			serializer = PublicidadSerializer(queryset, many=True)
+			return Response(serializer.data)
+		else:	
+			queryset = Publicidad.objects.all()
+			persona = get_object_or_404(queryset, pk=idpublicidad)
+			serializer = PublicidadSerializer(persona)
+			return Response(serializer.data)		
+
+	def perform_create(self, serializer):
+		serializer.save(owner=self.request.user, datafile=self.request.data.get('datafile'))
 
 
 def dictfetchall(cursor):
