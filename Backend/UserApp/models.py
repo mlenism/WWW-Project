@@ -2,6 +2,9 @@ from enum import unique
 from django.db import models
 from django.contrib.auth.models import AbstractUser, BaseUserManager, PermissionsMixin
 
+
+
+
 class Sede(models.Model):
     sede_codigo = models.BigAutoField(primary_key=True)
     sede_nombre = models.CharField(max_length=50, unique=True)
@@ -25,7 +28,7 @@ class Estado(models.Model):
 
 
 class Persona(models.Model):
-    persona_codigo = models.BigIntegerField(primary_key=True)
+    persona_codigo = models.BigAutoField(primary_key=True)
     persona_nombre = models.CharField(max_length=50)
     persona_documento = models.CharField(max_length=20, unique=True)
 
@@ -38,9 +41,16 @@ class Persona(models.Model):
 
 
 class Publicidad(models.Model):
+
+    TYPE_CHOICES = (
+        ("IMAGEN", "IMAGEN"),
+        ("VIDEO", "VIDEO"),
+        ("AUDIO", "AUDIO"),
+    )
     publicidad_codigo = models.BigAutoField(primary_key=True)
-    publicidad_tipo = models.CharField(max_length=50)
+    publicidad_tipo = models.CharField(max_length=50, choices=TYPE_CHOICES)
     publicidad_ruta = models.TextField()
+    
 
     def __str__(self):
         str = ("PUBLICIDAD\n"
@@ -69,8 +79,8 @@ class Servicio(models.Model):
     servicio_codigo = models.BigAutoField(primary_key=True)
     servicio_nombre = models.CharField(unique=True, max_length=50)
     servicio_prefijo = models.CharField(unique=True, max_length=2)
-    servicio_prioridad = models.FloatField(blank=True, null=True)
-    servicio_consecutivoactual = models.BigIntegerField()
+    servicio_prioridad = models.FloatField(blank=True, null=True, default='0')
+    servicio_consecutivoactual = models.BigIntegerField(default='0')
 
     def __str__(self):
         str = ("SERVICIO\n"
@@ -88,6 +98,8 @@ class Caja(models.Model):
     servicio_codigo = models.ForeignKey(Servicio, models.DO_NOTHING, null=True)
     sede_codigo = models.ForeignKey(Sede, models.DO_NOTHING, null=True)
 
+    REQUIRED_FIELDS = ['caja_codigo','caja_nombre','servicio_codigo','sede_codigo']
+
     def __str__(self):
         str = ("CAJA\n"
         f"caja_codigo: {self.caja_codigo},\n"
@@ -98,30 +110,32 @@ class Caja(models.Model):
 
 
 class Turno(models.Model):
-    turno_codigo = models.BigAutoField(primary_key=True)
-    turno_fecha = models.DateField()
-    turno_hora = models.TimeField()
-    turno_fechaejecucion = models.DateField(blank=True, null=True)
-    turno_horaejecucion = models.TimeField(blank=True, null=True)
-    servicio_codigo = models.ForeignKey(Servicio, models.DO_NOTHING)
-    caja_codigo = models.ForeignKey(Caja, models.DO_NOTHING, blank=True, null=True)
-    turno_consecutivo = models.BigIntegerField()
-    estado_codigo = models.ForeignKey(Estado, models.DO_NOTHING)
-    persona_codigo = models.ForeignKey(Persona, models.DO_NOTHING)
+	turno_codigo = models.BigAutoField(primary_key=True)
+	turno_fecha = models.DateField(auto_now_add=True, blank=True)
+	turno_hora = models.TimeField(auto_now_add=True, blank=True)
+	turno_fechaejecucion = models.DateField(blank=True, null=True)
+	turno_horaejecucion = models.TimeField(blank=True, null=True)
+	servicio_codigo = models.ForeignKey(Servicio, models.DO_NOTHING)
+	caja_codigo = models.ForeignKey(Caja, models.DO_NOTHING, blank=True, null=True)
+	turno_consecutivo = models.BigIntegerField()
+	estado_codigo = models.ForeignKey(Estado, models.DO_NOTHING)
+	persona_codigo = models.ForeignKey(Persona, models.DO_NOTHING)
 
-    def __str__(self):
-        str = ("TURNO\n"
-        f"turno_codigo: {self.turno_codigo},\n"
-        f"turno_fecha: {self.turno_fecha},\n"
-        f"turno_hora: {self.turno_hora},\n"
-        f"turno_fechaejecucion: {self.turno_fechaejecucion},\n"
-        f"turno_horaejecucion: {self.turno_horaejecucion},\n"
-        f"servicio_codigo: {self.servicio_codigo},\n"
-        f"caja_codigo: {self.caja_codigo},\n"
-        f"turno_consecutivo: {self.turno_consecutivo},\n"
-        f"estado_codigo: {self.estado_codigo},\n"
-        f"persona_codigo: {self.persona_codigo}")
-        return str
+	REQUIRED_FIELDS = ['servicio_codigo','turno_consecutivo','persona_codigo','estado_codigo']
+
+	def __str__(self):
+		str = ("TURNO\n"
+		f"turno_codigo: {self.turno_codigo},\n"
+		f"turno_fecha: {self.turno_fecha},\n"
+		f"turno_hora: {self.turno_hora},\n"
+		f"turno_fechaejecucion: {self.turno_fechaejecucion},\n"
+		f"turno_horaejecucion: {self.turno_horaejecucion},\n"
+		f"servicio_codigo: {self.servicio_codigo},\n"
+		f"caja_codigo: {self.caja_codigo},\n"
+		f"turno_consecutivo: {self.turno_consecutivo},\n"
+		f"estado_codigo: {self.estado_codigo},\n"
+		f"persona_codigo: {self.persona_codigo}")
+		return str
 
 
 class Usuario(AbstractUser):
@@ -144,3 +158,6 @@ class Usuario(AbstractUser):
         f"is_active: {self.is_active}\n"
         f"sede_codigo: {self.sede_codigo}")
         return str
+
+
+    
