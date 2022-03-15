@@ -157,9 +157,9 @@ class PostPublicidadSerializer(serializers.ModelSerializer):
     file_uploaded = FileField()
     class Meta:
         model = Publicidad
-        fields = ('publicidad_tipo','file_uploaded')
+        fields = ['file_uploaded']
 
-class PublicidadSerializer(serializers.HyperlinkedModelSerializer):
+class PublicidadSerializer(serializers.ModelSerializer):
     class Meta:
         model = Publicidad
         fields = '__all__'

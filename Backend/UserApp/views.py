@@ -329,16 +329,27 @@ class PublicidadController(viewsets.ModelViewSet):
 
 	@action(detail=True, methods=['post'])
 	def postPublicidad(self, request):
-		
-		serializer=PublicidadSerializer(data=request.data)
-		print(self.request.data.get('file_uploaded'))
 		content=self.request.FILES.get('file_uploaded')
-		print(content.name)
 		default_storage.save(django_settings.STATIC_ROOT+'/'+content.name, ContentFile(content.read()))
+		dataPublicidad={}
+		if 'video' in content.content_type:
+			dataPublicidad['publicidad_tipo']='VIDEO'
+		elif 'audio' in content.content_type:
+			dataPublicidad['publicidad_tipo']='AUDIO'
+		elif 'image' in content.content_type:
+			dataPublicidad['publicidad_tipo']='IMAGEN'
+		else:
+			return Response("Tipo de archivo no permitido -->"+content.content_type+"<--",status=status.HTTP_400_BAD_REQUEST)
+		
+
+		dataPublicidad['publicidad_ruta']=content.name
+		
+		serializer=PublicidadSerializer(data=dataPublicidad)
+		
 		if serializer.is_valid():
 			serializer.save()
 			
-			return Response({'status':'Publicidad Registrado'})
+			return Response({'status':'Publicidad Registrada'})
 		else:
 			return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
 
