@@ -7,9 +7,10 @@ from rest_framework.decorators import action
 from django.http import Http404, HttpResponse
 from django.db import connection
 from django.conf import settings as django_settings
-from UserApp.models import Usuario, Turno, Servicio, Persona, Estado, Caja, Sede, Publicidad
+from UserApp.models import ProgramaPublicidad, Usuario, Turno, Servicio, Persona, Estado, Caja, Sede, Publicidad
 from UserApp.serializers import UsuarioSerializer, PostTurnoSerializer, TurnoSerializer, PostSedeSerializer, SedeSerializer, PostServicioSerializer, ServicioSerializer, PostCajaSerializer, CajaSerializer
 from UserApp.serializers import PostEstadoSerializer, EstadoSerializer, PostPersonaSerializer, PersonaSerializer, PostPublicidadSerializer, PublicidadSerializer
+from UserApp.serializers import PostProgramaPublicidadSerializer, ProgramaPublicidadSerializer
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
 
@@ -469,6 +470,51 @@ class PublicidadController(viewsets.ModelViewSet):
 		except Publicidad.DoesNotExist:
 			raise Http404
 
+class ProgramaPublicidadController(viewsets.ModelViewSet):
+    
+	queryset = ProgramaPublicidad.objects.all()
+	serializer_class = PostProgramaPublicidadSerializer
+
+	@action(detail=True, methods=['post'])
+	def postProgramaPublicidad(self, request):
+		
+		
+		serializer=ProgramaPublicidadSerializer(data=request.data)
+		
+		if serializer.is_valid():
+			serializer.save()
+			
+			return Response({'status':'Programa Publicidad Registrada'})
+		else:
+			return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+
+	@action(detail=True, methods=['get'])
+	def getProgramaPublicidad(self, request,idppublicidad=None):
+		if idppublicidad == None:
+			queryset = ProgramaPublicidad.objects.all()
+			serializer = ProgramaPublicidadSerializer(queryset, many=True)
+			return Response(serializer.data)
+		else:	
+			queryset = ProgramaPublicidad.objects.all()
+			programa = get_object_or_404(queryset, pk=idppublicidad)
+			serializer = ProgramaPublicidadSerializer(programa)
+			return Response(serializer.data)		
+
+	@action(detail=True, methods=['put'])
+	def putProgramaPublicidad(self, request):
+		
+		ppublicidad = self.get_object(request.data["ppublicidad_codigo"])
+		serializer = ProgramaPublicidadSerializer(ppublicidad, data=request.data)
+		if serializer.is_valid():
+			serializer.save()
+			return Response(serializer.data)
+		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)		
+	
+	def get_object(self, ppublicidad_codigo):
+		try:
+			return ProgramaPublicidad.objects.get(ppublicidad_codigo=ppublicidad_codigo)
+		except ProgramaPublicidad.DoesNotExist:
+			raise Http404
 
 def dictfetchall(cursor):
     "Return all rows from a cursor as a dict"

@@ -2,7 +2,7 @@ import imp
 
 from rest_framework import serializers
 from rest_framework.serializers import  FileField
-from UserApp.models import Usuario, Sede, Turno, Caja, Servicio, Estado, Persona, Publicidad
+from UserApp.models import Usuario, Sede, Turno, Caja, Servicio, Estado, Persona, Publicidad, ProgramaPublicidad
 
 
 class UsuarioSerializer(serializers.ModelSerializer):
@@ -175,3 +175,21 @@ class PublicidadSerializer(serializers.ModelSerializer):
         publicidad.save()
        
         return publicidad.__dict__
+
+class PostProgramaPublicidadSerializer(serializers.ModelSerializer):
+   
+    class Meta:
+        model = ProgramaPublicidad
+        fields = ('ppublicidad_codigo','publicidad_codigo','ppublicidad_tiempo','ppublicidad_orden')
+
+class ProgramaPublicidadSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProgramaPublicidad
+        fields = '__all__'
+		
+    def create(self, validated_data):
+		
+        programaPublicidad = ProgramaPublicidad(**validated_data)
+        programaPublicidad.save()
+       
+        return programaPublicidad.__dict__
