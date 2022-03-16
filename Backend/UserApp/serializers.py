@@ -3,7 +3,7 @@ import imp
 
 from rest_framework import serializers
 from rest_framework.serializers import  FileField
-from UserApp.models import Usuario, Sede, Turno, Caja, Servicio, Estado, Persona, Publicidad, ProgramaPublicidad
+from UserApp.models import Usuario, Sede, Turno, Caja, Servicio, Estado, Persona, Publicidad, ProgramaPublicidad, VwTurno
 
 
 class UsuarioSerializer(serializers.ModelSerializer):
@@ -193,3 +193,9 @@ class ProgramaPublicidadSerializer(serializers.ModelSerializer):
         programaPublicidad.save()
        
         return programaPublicidad.__dict__
+
+class VwTurnoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = VwTurno
+        fields = '__all__'
+

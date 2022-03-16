@@ -34,7 +34,7 @@ urlpatterns = [
     path('programapublicidad',ProgramaPublicidadController.as_view({'post': 'postProgramaPublicidad','get': 'getProgramaPublicidad','put': 'putProgramaPublicidad'})),
     path('programapublicidad/<int:idppublicidad>/',ProgramaPublicidadController.as_view({'get': 'getProgramaPublicidad'})),
 
-    
+   
 
 
 
