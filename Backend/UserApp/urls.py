@@ -1,12 +1,16 @@
 from django.urls import path
 from rest_framework.urlpatterns import format_suffix_patterns
 from UserApp.views import UsuarioApi, Aleatorio, TurnoController, SedeController, ServicioController, CajaController, EstadoController
-from UserApp.views import PersonaController, PublicidadController, ProgramaPublicidadController
+from UserApp.views import PersonaController, PublicidadController, ProgramaPublicidadController, Login, Logout, UserToken
 
 urlpatterns = [
     path('usuarios', UsuarioApi.as_view()),
     path('usuarios/<username>/', UsuarioApi.as_view()),
     path('aleatorio/<int:limite>/',Aleatorio.as_view()),
+
+    path('login', Login.as_view()),
+    path('logout', Logout.as_view()),
+    path('refresh-token',UserToken.as_view()),
     
     path('turno',TurnoController.as_view({'post': 'postTurno'  })),
     path('turno/<int:idcaja>/',TurnoController.as_view({'get': 'getTurno'})),
@@ -33,11 +37,6 @@ urlpatterns = [
 
     path('programapublicidad',ProgramaPublicidadController.as_view({'post': 'postProgramaPublicidad','get': 'getProgramaPublicidad','put': 'putProgramaPublicidad'})),
     path('programapublicidad/<int:idppublicidad>/',ProgramaPublicidadController.as_view({'get': 'getProgramaPublicidad'})),
-
-    
-
-
-
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)
