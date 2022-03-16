@@ -139,7 +139,17 @@ class TurnoController(viewsets.ModelViewSet):
 	@action(detail=True, methods=['get'])
 	def getTurno(self, request,idcaja=None):
 		if idcaja == None:
-			return Response(status=status.HTTP_204_NO_CONTENT)
+			consulta="""SELECT T.*,C.caja_nombre,prioridad as prioridadfinal FROM vw_turnos T, 
+						"UserApp_turno" Tt LEFT JOIN "UserApp_caja" c ON Tt.caja_codigo_id=C.caja_codigo
+				WHERE  T.estado_codigo in (1,4)  AND Tt.turno_codigo=T.turno_codigo
+				ORDER BY prioridadfinal desc,turno_fecha asc,turno_hora asc limit 10 """
+
+			cur = connection.cursor()
+			cur.execute(consulta)
+			r = [dict((cur.description[i][0], value) \
+               for i, value in enumerate(row)) for row in cur.fetchall()]
+			
+			return Response(r)
 		
 		try:
 			obj_caja   = Caja.objects.get(caja_codigo=idcaja)
@@ -533,3 +543,4 @@ def tts(texto, language, archivo):
         tts = gTTS(text=texto, lang=language, slow=False) 
         # Guardamos el archivo de Audio
         tts.save(archivo)
+

@@ -8,7 +8,7 @@ urlpatterns = [
     path('usuarios/<username>/', UsuarioApi.as_view()),
     path('aleatorio/<int:limite>/',Aleatorio.as_view()),
     
-    path('turno',TurnoController.as_view({'post': 'postTurno'  })),
+    path('turno',TurnoController.as_view({'post': 'postTurno','get': 'getTurno'  })),
     path('turno/<int:idcaja>/',TurnoController.as_view({'get': 'getTurno'})),
 
     path('sede',SedeController.as_view({'post': 'postSede' ,'get': 'getSede','put': 'putSede'})),
