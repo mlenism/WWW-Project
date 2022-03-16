@@ -3,8 +3,6 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser, BaseUserManager, PermissionsMixin
 
 
-
-
 class Sede(models.Model):
     sede_codigo = models.BigAutoField(primary_key=True)
     sede_nombre = models.CharField(max_length=50, unique=True)
@@ -180,4 +178,3 @@ class VwTurno(models.Model):
 
     class Meta:
         db_table = "vw_turnos"
-    

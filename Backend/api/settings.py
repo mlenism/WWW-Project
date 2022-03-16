@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'rest_framework.authtoken',
     'corsheaders',
     'UserApp.apps.UserappConfig'
 ]
@@ -134,3 +135,5 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 AUTH_USER_MODEL = 'UserApp.Usuario'
+
+TOKEN_EXPRIED_AFTER_SECONDS = 86400

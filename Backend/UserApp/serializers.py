@@ -30,16 +30,30 @@ class UsuarioSerializer(serializers.ModelSerializer):
         return usuario.__dict__
 
     def to_representation(self, instance):
-        if 'sede_codigo_id' in instance:
-            return {'status': 'ok'}
+        if isinstance(instance, dict):
+            if 'sede_codigo_id' in instance:
+                return {'status': 'ok'}
+            return {
+                'username': instance['username'],
+                'first_name': instance['first_name'],
+                'last_name': instance['last_name'],
+                'email': instance['email'],
+                'is_superuser': instance['is_superuser'],
+                'is_staff': instance['is_staff'],
+                'sede_nombre': instance['sede_codigo__sede_nombre']
+            }
+        if instance.sede_codigo == None:
+            sede = None
+        else:
+            sede = instance.sede_codigo.sede_nombre
         return {
-            'username': instance['username'],
-            'first_name': instance['first_name'],
-            'last_name': instance['last_name'],
-            'email': instance['email'],
-            'is_superuser': instance['is_superuser'],
-            'is_staff': instance['is_staff'],
-            'sede_nombre': instance['sede_codigo__sede_nombre']
+            'username': instance.username,
+            'first_name': instance.first_name,
+            'last_name': instance.last_name,
+            'email': instance.email,
+            'is_superuser': instance.is_superuser,
+            'is_staff': instance.is_staff,
+            'sede_nombre': sede
         }
 
 
