@@ -7,10 +7,10 @@ from rest_framework.decorators import action
 from django.http import Http404, HttpResponse
 from django.db import connection
 from django.conf import settings as django_settings
-from UserApp.models import ProgramaPublicidad, Usuario, Turno, Servicio, Persona, Estado, Caja, Sede, Publicidad
+from UserApp.models import ProgramaPublicidad, Usuario, Turno, Servicio, Persona, Estado, Caja, Sede, Publicidad, VwTurno
 from UserApp.serializers import UsuarioSerializer, PostTurnoSerializer, TurnoSerializer, PostSedeSerializer, SedeSerializer, PostServicioSerializer, ServicioSerializer, PostCajaSerializer, CajaSerializer
 from UserApp.serializers import PostEstadoSerializer, EstadoSerializer, PostPersonaSerializer, PersonaSerializer, PostPublicidadSerializer, PublicidadSerializer
-from UserApp.serializers import PostProgramaPublicidadSerializer, ProgramaPublicidadSerializer
+from UserApp.serializers import PostProgramaPublicidadSerializer, ProgramaPublicidadSerializer, VwTurnoSerializer
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
 
@@ -139,51 +139,44 @@ class TurnoController(viewsets.ModelViewSet):
 	@action(detail=True, methods=['get'])
 	def getTurno(self, request,idcaja=None):
 		if idcaja == None:
-			consulta="""SELECT T.*,C.caja_nombre,prioridad as prioridadfinal FROM vw_turnos T, 
-						"UserApp_turno" Tt LEFT JOIN "UserApp_caja" c ON Tt.caja_codigo_id=C.caja_codigo
-				WHERE  T.estado_codigo in (1,4)  AND Tt.turno_codigo=T.turno_codigo
-				ORDER BY prioridadfinal desc,turno_fecha asc,turno_hora asc limit 10 """
-
-			cur = connection.cursor()
-			cur.execute(consulta)
-			r = [dict((cur.description[i][0], value) \
-               for i, value in enumerate(row)) for row in cur.fetchall()]
 			
-			return Response(r)
-		
+			queryset = VwTurno.objects.filter(estado_codigo__in=[1, 4]).order_by('-prioridad','turno_fecha','turno_hora')[:10]
+			serializer = VwTurnoSerializer(queryset, many=True)
+			return Response(serializer.data)
+
 		try:
 			obj_caja   = Caja.objects.get(caja_codigo=idcaja)
 		
 
 			try:
 				obj_turno=Turno.objects.get(estado_codigo=4,caja_codigo_id=idcaja)
-				consulta="""SELECT *,99 as prioridadfinal FROM vw_turnos T, "UserApp_caja" c 
-				WHERE T.servicio_codigo_id=C.servicio_codigo_id AND T.turno_codigo=%s limit 1""" %obj_turno.turno_codigo
+				
+				queryset = VwTurno.objects.filter(turno_codigo=obj_turno.turno_codigo)
+				serializer = VwTurnoSerializer(queryset, many=True)
+
+				return Response(serializer.data)
 			except Turno.DoesNotExist:
 			
-				consulta="""(SELECT *,99 as prioridadfinal FROM vw_turnos T, "UserApp_caja" c 
-				WHERE T.servicio_codigo_id=C.servicio_codigo_id AND C.caja_codigo= %s AND T.estado_codigo=1) UNION ALL   
-				(SELECT *,prioridad as prioridadfinal FROM vw_turnos T, "UserApp_caja" c 
-				WHERE T.servicio_codigo_id=C.servicio_codigo_id AND C.caja_codigo!=%s  AND T.estado_codigo=1  
-				) ORDER BY prioridadfinal desc,turno_fecha asc,turno_hora asc limit 1 """%(idcaja,idcaja)
+				
+				count = VwTurno.objects.filter(servicio_codigo_id=obj_caja.servicio_codigo).filter(estado_codigo=1).count()
 		
-		
-			with connection.cursor() as cursor:
-				cursor.execute(consulta)
-				row=dictfetchall(cursor)
-				#row = cursor.fetchall()
-		
-			turno      =row[0].get('turno_codigo')
-			obj_estado = Estado.objects.get(estado_codigo=4)
-			obj_turno  = Turno.objects.get(turno_codigo=turno)
-			obj_turno.estado_codigo=obj_estado
-			obj_turno.caja_codigo_id=idcaja
-			obj_turno.save()
-			consecutivo = row[0].get('consecutivo')
-			tts("Turno "+consecutivo, 'es', django_settings.STATIC_ROOT+'/%s.mp3'%consecutivo) 
+				if count >0 :
+					queryset = VwTurno.objects.filter(servicio_codigo_id=obj_caja.servicio_codigo).filter(estado_codigo=1).order_by('-prioridad','turno_fecha','turno_hora')[:1]					
+					serializer = VwTurnoSerializer(queryset, many=True)
+				else:
+					queryset = VwTurno.objects.filter(estado_codigo=1).order_by('-prioridad','turno_fecha','turno_hora')[:1]
+					serializer = VwTurnoSerializer(queryset, many=True)
 
-			return Response(row )
-			
+				turno      =queryset[0].turno_codigo
+				obj_estado = Estado.objects.get(estado_codigo=4)
+				obj_turno  = Turno.objects.get(turno_codigo=turno)
+				obj_turno.estado_codigo=obj_estado
+				obj_turno.caja_codigo_id=idcaja
+				obj_turno.save()
+				consecutivo = queryset[0].consecutivo
+				tts("Turno "+consecutivo, 'es', django_settings.STATIC_ROOT+'/%s.mp3'%consecutivo) 
+				return Response(serializer.data)
+
 		except Caja.DoesNotExist:
 			return Response('Caja enviada no existe',status=status.HTTP_404_NOT_FOUND)
 
