@@ -12,7 +12,7 @@ urlpatterns = [
     path('logout', Logout.as_view()),
     path('refresh-token',UserToken.as_view()),
     
-    path('turno',TurnoController.as_view({'post': 'postTurno'  })),
+    path('turno',TurnoController.as_view({'post': 'postTurno','get': 'getTurno'  })),
     path('turno/<int:idcaja>/',TurnoController.as_view({'get': 'getTurno'})),
 
     path('sede',SedeController.as_view({'post': 'postSede' ,'get': 'getSede','put': 'putSede'})),

@@ -156,3 +156,25 @@ class Usuario(AbstractUser):
         f"is_active: {self.is_active}\n"
         f"sede_codigo: {self.sede_codigo}")
         return str
+
+class VwTurno(models.Model):
+    turno_codigo   = models.BigIntegerField(primary_key=True,verbose_name="Codigo de turno")
+    persona_nombre = models.CharField(max_length=50,verbose_name="Nombre del usuario de turno")
+    persona_documento = models.CharField(max_length=50,verbose_name="Documento de la persona")
+    servicio_codigo_id = models.ForeignKey(Servicio, models.DO_NOTHING, null=True,db_column='servicio_codigo_id')
+    servicio_nombre = models.CharField(max_length=50,verbose_name="Nombre del Servicio")
+    consecutivo = models.CharField(max_length=50,verbose_name="Consecutivo")
+    turno_fecha = models.DateField(blank=True, null=True ,verbose_name="Fecha del turno")
+    turno_hora = models.TimeField(blank=True, null=True ,verbose_name="Hora del Turno")
+    prioridadservicio = models.FloatField(blank=True, null=True ,verbose_name="Prioridad del servicio")
+    estado_codigo = models.BigIntegerField(verbose_name="Estado del Servicio")
+    estado_nombre = models.CharField(max_length=50,verbose_name="Estado")
+    prioridad     = models.FloatField(blank=True, null=True ,verbose_name="Prioridad del servicio")
+    tiempominutos =models.FloatField(blank=True, null=True ,verbose_name="Prioridad del servicio")
+    caja_codigo =models.BigIntegerField(verbose_name="Codigo Id de la Caja")
+    caja_nombre =models.CharField(max_length=50,verbose_name="Nombre de la Caja")
+
+
+
+    class Meta:
+        db_table = "vw_turnos"
