@@ -35,7 +35,7 @@ export const login = (credentials) =>
     .then((res) => {
       console.log(credentials);
       console.log(res);
-      return res.credentials;
+      return res.data;
     })
     .catch((err) => {
       console.log(err);

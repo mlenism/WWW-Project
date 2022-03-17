@@ -54,7 +54,6 @@ const ContentStyle = styled('div')(({ theme }) => ({
 // ----------------------------------------------------------------------
 
 export default function Login() {
-  const [user, setUser] = React.useState({});
   const [showPassword, setShowPassword] = useState(false);
   const [usernameA, setUsernameA] = React.useState('');
   const [passwordA, setPasswordA] = React.useState('');
@@ -74,16 +73,12 @@ export default function Login() {
   };
 
   const userLog = async () => {
+    let user = {};
     const response = await login({
       username: usernameA,
       password: passwordA
     });
-    if (response !== undefined) setUser(response);
-    return response;
-  };
-
-  function validarUsuario() {
-    userLog();
+    if (response !== undefined) user = response;
 
     if (Object.keys(user).length === 3) {
       if (user.ser.is_staff === true && user.ser.is_superuser === true) {
@@ -96,7 +91,7 @@ export default function Login() {
     } else {
       navigate('');
     }
-  }
+  };
 
   return (
     <RootStyle title="Login | Minimal-UI">
@@ -153,7 +148,7 @@ export default function Login() {
             size="large"
             type="submit"
             variant="contained"
-            onClick={() => validarUsuario()}
+            onClick={() => userLog()}
           >
             Login
           </Button>
