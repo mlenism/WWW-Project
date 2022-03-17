@@ -301,7 +301,7 @@ class TurnoUpdateController(viewsets.ModelViewSet):
 
 	@action(detail=True, methods=['post'])
 	def postSaltarTurno(self, request):
-
+		
 		try:
 			turno = Turno.objects.filter(turno_codigo=request.data["turno_codigo"])
 			estado=turno[0].estado_codigo.estado_codigo
@@ -321,7 +321,7 @@ class TurnoUpdateController(viewsets.ModelViewSet):
 			else:
 				return Response("Error en el estado del turno %s"%estado,status=status.HTTP_400_BAD_REQUEST)
 		except:
-			return Response("Enviar turno correcto %s"%estado,status=status.HTTP_400_BAD_REQUEST)
+			return Response("Enviar turno correcto ",status=status.HTTP_400_BAD_REQUEST)
 	
 	@action(detail=True, methods=['post'])
 	def postConfirmarTurno(self, request):
@@ -345,7 +345,7 @@ class TurnoUpdateController(viewsets.ModelViewSet):
 			else:
 				return Response("Error en el estado del turno %s"%estado,status=status.HTTP_400_BAD_REQUEST)
 		except:
-			return Response("Enviar turno correcto %s"%estado,status=status.HTTP_400_BAD_REQUEST)
+			return Response("Enviar turno correcto ",status=status.HTTP_400_BAD_REQUEST)
 
 
 class SedeController(viewsets.ModelViewSet):
