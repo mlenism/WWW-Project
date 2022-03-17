@@ -247,6 +247,53 @@ class TurnoController(viewsets.ModelViewSet):
 		except Caja.DoesNotExist:
 			return Response('Caja enviada no existe',status=status.HTTP_404_NOT_FOUND)
 
+	@action(detail=True, methods=['get'])
+	def getConsultaTurno(self, request,idturno):
+					
+		queryset = VwTurno.objects.filter(consecutivo=idturno).order_by('-turno_fecha','-turno_hora')[:1]
+		serializer = VwTurnoSerializer(queryset, many=True)
+		return Response(serializer.data)
+
+	@action(detail=True, methods=['get'])
+	def getConsultaPosicionTurno(self, request,idturno):
+		try:			
+			turno = VwTurno.objects.filter(consecutivo=idturno).order_by('-turno_fecha','-turno_hora')[:1]
+			idturno=turno[0].turno_codigo
+			idservicio=turno[0].servicio_codigo_id
+			idestado=turno[0].estado_codigo
+
+
+
+			if idestado!=1:
+				Response("El turno ya fue tramitado",status=status.HTTP_404_NOT_FOUND)
+			else:
+				turno = VwTurno.objects.filter(estado_codigo=1).filter(servicio_codigo_id=idservicio).order_by('-prioridad','turno_fecha','turno_hora')
+				contador=1
+				auxservicio=0
+				for data in turno:
+					
+					if data.turno_codigo == idturno:
+						auxservicio=contador
+					
+					contador=contador+1
+
+
+				turno = VwTurno.objects.filter(estado_codigo=1).order_by('-prioridad','turno_fecha','turno_hora')
+				contador=1
+				auxgeneral=0
+				for data in turno:
+					if data.turno_codigo == idturno:
+						auxgeneral=contador
+					
+					contador=contador+1
+
+				dic =  dict(servicio=auxservicio, general=auxgeneral)
+
+			return Response(dic)
+		except:
+			return Response("No existe el turno o ya fue tramitado",status=status.HTTP_404_NOT_FOUND)
+	
+
 
 class TurnoUpdateController(viewsets.ModelViewSet):
 	queryset = Turno.objects.all()
@@ -254,7 +301,7 @@ class TurnoUpdateController(viewsets.ModelViewSet):
 
 	@action(detail=True, methods=['post'])
 	def postSaltarTurno(self, request):
-
+		
 		try:
 			turno = Turno.objects.filter(turno_codigo=request.data["turno_codigo"])
 			estado=turno[0].estado_codigo.estado_codigo
@@ -274,7 +321,7 @@ class TurnoUpdateController(viewsets.ModelViewSet):
 			else:
 				return Response("Error en el estado del turno %s"%estado,status=status.HTTP_400_BAD_REQUEST)
 		except:
-			return Response("Enviar turno correcto %s"%estado,status=status.HTTP_400_BAD_REQUEST)
+			return Response("Enviar turno correcto ",status=status.HTTP_400_BAD_REQUEST)
 	
 	@action(detail=True, methods=['post'])
 	def postConfirmarTurno(self, request):
@@ -298,7 +345,7 @@ class TurnoUpdateController(viewsets.ModelViewSet):
 			else:
 				return Response("Error en el estado del turno %s"%estado,status=status.HTTP_400_BAD_REQUEST)
 		except:
-			return Response("Enviar turno correcto %s"%estado,status=status.HTTP_400_BAD_REQUEST)
+			return Response("Enviar turno correcto ",status=status.HTTP_400_BAD_REQUEST)
 
 
 class SedeController(viewsets.ModelViewSet):
