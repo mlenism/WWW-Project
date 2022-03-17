@@ -12,25 +12,25 @@ import Toolbar from '@mui/material/Toolbar';
 const images = [
   {
     url: '/static/mock-images/avatars/avatar_20.jpg',
-    title: 'Servicio general G',
+    title: 'General',
     width: '30%',
     value: 1
   },
   {
     url: '/static/mock-images/avatars/avatar_21.jpg',
-    title: 'Servicio IE',
+    title: 'Importaciones y exportaciones',
     width: '30%',
     value: 2
   },
   {
     url: '/static/mock-images/avatars/avatar_22.jpg',
-    title: 'Servicio S',
+    title: 'Seguros',
     width: '30%',
     value: 3
   },
   {
     url: '/static/mock-images/avatars/avatar_23.jpg',
-    title: 'Servicio D',
+    title: 'Transacciones',
     width: '30%',
     value: 4
   },

@@ -75,3 +75,24 @@ export const addTurno = (data) =>
       console.log(err);
       return err.response;
     });
+
+export const addPersona = (data) =>
+  axios
+    .post(`${process.env.REACT_APP_API_URL}/persona`, data)
+    .then((res) => {
+      console.log(data);
+      console.log(res);
+      return res.data;
+    })
+    .catch((err) => {
+      console.log(err);
+      return err.response;
+    });
+
+export const getPersona = (cc) =>
+  axios
+    .get(`${process.env.REACT_APP_API_URL}/persona/${cc}`)
+    .then((res) => res.data)
+    .catch((err) => {
+      console.log(err);
+    });
