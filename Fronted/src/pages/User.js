@@ -191,7 +191,6 @@ export default function User() {
                       const { id, username, rol, email } = row;
                       const sede = row.sede_nombre;
                       const status = row.is_active;
-                      console.log(status);
                       const isItemSelected = selected.indexOf(username) !== -1;
 
                       return (
