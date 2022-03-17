@@ -28,3 +28,16 @@ export const getUsuarios = () =>
     .catch((err) => {
       console.log(err);
     });
+
+export const login = (credentials) =>
+  axios
+    .post(`${process.env.REACT_APP_API_URL}/login`, credentials)
+    .then((res) => {
+      console.log(credentials);
+      console.log(res);
+      return res.credentials;
+    })
+    .catch((err) => {
+      console.log(err);
+      return err.response;
+    });
