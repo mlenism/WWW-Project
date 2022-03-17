@@ -62,3 +62,16 @@ export const getTurnos = () =>
     .catch((err) => {
       console.log(err);
     });
+
+export const addTurno = (data) =>
+  axios
+    .post(`${process.env.REACT_APP_API_URL}/turno`, data)
+    .then((res) => {
+      console.log(data);
+      console.log(res);
+      return res.data;
+    })
+    .catch((err) => {
+      console.log(err);
+      return err.response;
+    });
