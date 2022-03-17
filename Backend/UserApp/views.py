@@ -92,17 +92,15 @@ class Login(ObtainAuthToken):
 			if user.is_active:
 				token,created = Token.objects.get_or_create(user=user)
 				user_serializer = UsuarioSerializer(user)
+				if not created:
+					token.delete()
+					token = Token.objects.create(user=user)
 				respuesta = Response({
 					'token': token.key,
 					'ser': user_serializer.data,
 					'message': 'Inicio de Sesión Exitoso.'
 				},status=status.HTTP_201_CREATED)
-				if created:
-					return respuesta
-				else:
-					token.delete()
-					token = Token.objects.create(user=user)
-					return respuesta
+				return respuesta
 			else:
 				return Response({'error': 'Este usuario no puede iniciar sesión.'},status=status.HTTP_401_UNAUTHORIZED)
 		else:
