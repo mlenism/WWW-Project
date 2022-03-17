@@ -63,6 +63,12 @@ class PostTurnoSerializer(serializers.ModelSerializer):
         model = Turno
         fields = ('servicio_codigo', 'persona_codigo')
 
+class PostTurnoUpdateSerializer(serializers.ModelSerializer):
+   
+    class Meta:
+        model = Turno
+        fields = ('turno_codigo','turno_codigo')
+
 class TurnoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Turno

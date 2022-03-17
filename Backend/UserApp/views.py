@@ -14,7 +14,7 @@ from django.conf import settings as django_settings
 from UserApp.models import ProgramaPublicidad, Usuario, Turno, Servicio, Persona, Estado, Caja, Sede, Publicidad, VwTurno
 from UserApp.serializers import UsuarioSerializer, PostTurnoSerializer, TurnoSerializer, PostSedeSerializer, SedeSerializer, PostServicioSerializer, ServicioSerializer, PostCajaSerializer, CajaSerializer
 from UserApp.serializers import PostEstadoSerializer, EstadoSerializer, PostPersonaSerializer, PersonaSerializer, PostPublicidadSerializer, PublicidadSerializer
-from UserApp.serializers import PostProgramaPublicidadSerializer, ProgramaPublicidadSerializer, VwTurnoSerializer
+from UserApp.serializers import PostProgramaPublicidadSerializer, ProgramaPublicidadSerializer, VwTurnoSerializer, PostTurnoUpdateSerializer
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
 from UserApp.authentication_mixins import Authentication
@@ -211,8 +211,11 @@ class TurnoController(viewsets.ModelViewSet):
 				obj_turno=Turno.objects.get(estado_codigo=4,caja_codigo_id=idcaja)
 				
 				queryset = VwTurno.objects.filter(turno_codigo=obj_turno.turno_codigo)
+				consecutivo = queryset[0].consecutivo
+				queryset[0].rutaaudio=django_settings.STATIC_ROOT+'/%s.mp3'%consecutivo
 				serializer = VwTurnoSerializer(queryset, many=True)
-
+				tts("Turno "+consecutivo+" Caja "+obj_caja.caja_nombre, 'es', django_settings.STATIC_ROOT+'/%s.mp3'%consecutivo) 
+				
 				return Response(serializer.data)
 			except Turno.DoesNotExist:
 			
@@ -221,11 +224,16 @@ class TurnoController(viewsets.ModelViewSet):
 		
 				if count >0 :
 					queryset = VwTurno.objects.filter(servicio_codigo_id=obj_caja.servicio_codigo).filter(estado_codigo=1).order_by('-prioridad','turno_fecha','turno_hora')[:1]					
-					serializer = VwTurnoSerializer(queryset, many=True)
+					
 				else:
-					queryset = VwTurno.objects.filter(estado_codigo=1).order_by('-prioridad','turno_fecha','turno_hora')[:1]
-					serializer = VwTurnoSerializer(queryset, many=True)
+					count = VwTurno.objects.filter(estado_codigo=1).count()
+					if count>0 :
+						queryset = VwTurno.objects.filter(estado_codigo=1).order_by('-prioridad','turno_fecha','turno_hora')[:1]
+						
+					else :
+						return Response('No existen Turnos Disponibles',status=status.HTTP_404_NOT_FOUND)				
 
+				
 				turno      =queryset[0].turno_codigo
 				obj_estado = Estado.objects.get(estado_codigo=4)
 				obj_turno  = Turno.objects.get(turno_codigo=turno)
@@ -233,11 +241,67 @@ class TurnoController(viewsets.ModelViewSet):
 				obj_turno.caja_codigo_id=idcaja
 				obj_turno.save()
 				consecutivo = queryset[0].consecutivo
-				tts("Turno "+consecutivo, 'es', django_settings.STATIC_ROOT+'/%s.mp3'%consecutivo) 
+				queryset[0].rutaaudio=django_settings.STATIC_ROOT+'/%s.mp3'%consecutivo
+				serializer = VwTurnoSerializer(queryset, many=True)
+				tts("Turno "+consecutivo+" Caja "+obj_caja.caja_nombre, 'es', django_settings.STATIC_ROOT+'/%s.mp3'%consecutivo) 
 				return Response(serializer.data)
 
 		except Caja.DoesNotExist:
 			return Response('Caja enviada no existe',status=status.HTTP_404_NOT_FOUND)
+
+
+class TurnoUpdateController(viewsets.ModelViewSet):
+	queryset = Turno.objects.all()
+	serializer_class = PostTurnoUpdateSerializer
+
+	@action(detail=True, methods=['post'])
+	def postSaltarTurno(self, request):
+
+		try:
+			turno = Turno.objects.filter(turno_codigo=request.data["turno_codigo"])
+			estado=turno[0].estado_codigo.estado_codigo
+			if estado==4:
+				colombia = pytz.timezone('America/Bogota')
+				dt =datetime.datetime.now()
+				fecha_ejec = colombia.localize(dt).strftime("%Y-%m-%d")
+				hora_ejec = colombia.localize(dt).strftime("%H:%M:%S")
+				Turno.objects.filter(turno_codigo=request.data["turno_codigo"]).update(estado_codigo=3,turno_fechaejecucion=fecha_ejec,turno_horaejecucion=hora_ejec)
+				return Response("Turno Saltado")
+			elif estado==3:	
+				return Response("Turno Ya en estado Saltado",status=status.HTTP_200_OK)
+			elif estado==2:	
+				return Response("Turno esta Confirmado",status=status.HTTP_400_BAD_REQUEST)
+			elif estado==1:	
+				return Response("Turno No Valido Para Saltar",status=status.HTTP_400_BAD_REQUEST)
+			else:
+				return Response("Error en el estado del turno %s"%estado,status=status.HTTP_400_BAD_REQUEST)
+		except:
+			return Response("Enviar turno correcto %s"%estado,status=status.HTTP_400_BAD_REQUEST)
+	
+	@action(detail=True, methods=['post'])
+	def postConfirmarTurno(self, request):
+
+		try:
+			turno = Turno.objects.filter(turno_codigo=request.data["turno_codigo"])
+			estado=turno[0].estado_codigo.estado_codigo
+			if estado==4:
+				colombia = pytz.timezone('America/Bogota')
+				dt =datetime.datetime.now()
+				fecha_ejec = colombia.localize(dt).strftime("%Y-%m-%d")
+				hora_ejec = colombia.localize(dt).strftime("%H:%M:%S")
+				Turno.objects.filter(turno_codigo=request.data["turno_codigo"]).update(estado_codigo=2,turno_fechaejecucion=fecha_ejec,turno_horaejecucion=hora_ejec)
+				return Response("Turno Confirmado")
+			elif estado==3:	
+				return Response("Turno esta en estado SALTADO",status=status.HTTP_400_BAD_REQUEST)
+			elif estado==2:	
+				return Response("Turno Ya esta Confirmado",status=status.HTTP_200_OK)
+			elif estado==1:	
+				return Response("Turno No Valido Para Confirmar",status=status.HTTP_400_BAD_REQUEST)
+			else:
+				return Response("Error en el estado del turno %s"%estado,status=status.HTTP_400_BAD_REQUEST)
+		except:
+			return Response("Enviar turno correcto %s"%estado,status=status.HTTP_400_BAD_REQUEST)
+
 
 class SedeController(viewsets.ModelViewSet):
 	queryset = Sede.objects.all()
@@ -331,10 +395,9 @@ class ServicioController(viewsets.ModelViewSet):
 		Servicio.objects.filter(servicio_codigo=request.data["servicio_codigo"]).update(servicio_consecutivoactual='0')
 		return Response({'status':'Consecutivos inicializados'})
 
-
 	def get_object(self, servicio_codigo):
 		try:
-			return Servicio.objects.get(publicidad_codigo=servicio_codigo)
+			return Servicio.objects.get(servicio_codigo=servicio_codigo)
 		except Servicio.DoesNotExist:
 			raise Http404		
 
@@ -447,14 +510,14 @@ class PersonaController(viewsets.ModelViewSet):
 			return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
 
 	@action(detail=True, methods=['get'])
-	def getPersona(self, request,idpersona=None):
-		if idpersona == None:
+	def getPersona(self, request,docpersona=None):
+		if docpersona == None:
 			queryset = Persona.objects.all()
 			serializer = PersonaSerializer(queryset, many=True)
 			return Response(serializer.data)
 		else:	
 			queryset = Persona.objects.all()
-			persona = get_object_or_404(queryset, pk=idpersona)
+			persona = get_object_or_404(queryset, persona_documento=docpersona)
 			serializer = PersonaSerializer(persona)
 			return Response(serializer.data)	
 
@@ -588,11 +651,11 @@ def dictfetchall(cursor):
     ]
     
 def tts(texto, language, archivo):
-    if os.path.exists(archivo):
+    '''if os.path.exists(archivo):
         print ("File exist")
     else:
-        print ("File not exist")
-        tts = gTTS(text=texto, lang=language, slow=False) 
-        # Guardamos el archivo de Audio
-        tts.save(archivo)
+        print ("File not exist")'''
+    tts = gTTS(text=texto, lang=language, slow=False) 
+    # Guardamos el archivo de Audio
+    tts.save(archivo)
 

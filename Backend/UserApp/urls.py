@@ -1,7 +1,7 @@
 from django.urls import path
 from rest_framework.urlpatterns import format_suffix_patterns
 from UserApp.views import UsuarioApi, Aleatorio, TurnoController, SedeController, ServicioController, CajaController, EstadoController
-from UserApp.views import PersonaController, PublicidadController, ProgramaPublicidadController, Login, Logout, UserToken
+from UserApp.views import PersonaController, PublicidadController, ProgramaPublicidadController, TurnoUpdateController, Login, Logout, UserToken
 
 urlpatterns = [
     path('usuarios', UsuarioApi.as_view()),
@@ -14,6 +14,9 @@ urlpatterns = [
     
     path('turno',TurnoController.as_view({'post': 'postTurno','get': 'getTurno'  })),
     path('turno/<int:idcaja>/',TurnoController.as_view({'get': 'getTurno'})),
+
+    path('saltarturno',TurnoUpdateController.as_view({'post': 'postSaltarTurno'})),
+    path('confirmarturno',TurnoUpdateController.as_view({'post': 'postConfirmarTurno'})),
 
     path('sede',SedeController.as_view({'post': 'postSede' ,'get': 'getSede','put': 'putSede'})),
     path('sede/<int:idsede>/',SedeController.as_view({'get': 'getSede'})),
@@ -29,11 +32,10 @@ urlpatterns = [
     path('estado/<int:idestado>/',EstadoController.as_view({'get': 'getEstado'})),
 
     path('persona',PersonaController.as_view({'post': 'postPersona' ,'get': 'getPersona','put': 'putPersona'})),
-    path('persona/<int:idpersona>/',PersonaController.as_view({'get': 'getPersona'})),
     path('persona/<str:docpersona>/',PersonaController.as_view({'get': 'getPersona'})),
 
     path('publicidad',PublicidadController.as_view({'post': 'postPublicidad','get': 'getPublicidad','put': 'putPublicidad'})),
-    path('publicidad/<int:idpublicidad>/',PersonaController.as_view({'get': 'getPublicidad'})),
+    path('publicidad/<int:idpublicidad>/',PublicidadController.as_view({'get': 'getPublicidad'})),
 
     path('programapublicidad',ProgramaPublicidadController.as_view({'post': 'postProgramaPublicidad','get': 'getProgramaPublicidad','put': 'putProgramaPublicidad'})),
     path('programapublicidad/<int:idppublicidad>/',ProgramaPublicidadController.as_view({'get': 'getProgramaPublicidad'})),
