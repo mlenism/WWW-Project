@@ -12,6 +12,7 @@ import LoadingButton from '@mui/lab/LoadingButton';
 // components
 import { MotionContainer, varBounceIn } from '../components/animate';
 import Page from '../components/Page';
+import { servicio } from './Solicitud';
 
 // ----------------------------------------------------------------------
 const RootStyle = styled(Page)(({ theme }) => ({
@@ -32,6 +33,7 @@ export default function Cedula() {
   }
 
   function Borrar() {
+    console.log(servicio);
     setTexto(texto.slice(0, -1));
   }
 
@@ -96,7 +98,7 @@ export default function Cedula() {
                 <Button
                   size="large"
                   variant="outlined"
-                  Width="50"
+                  width="50"
                   onClick={() => LlenarCedula('0')}
                 >
                   0
