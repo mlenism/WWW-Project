@@ -54,10 +54,10 @@ const ContentStyle = styled('div')(({ theme }) => ({
 // ----------------------------------------------------------------------
 
 export default function Login() {
-  const [credentials, setCredentials] = useState({});
+  const [user, setUser] = React.useState({});
   const [showPassword, setShowPassword] = useState(false);
-  const [username, setUsername] = React.useState('');
-  const [password, setPassword] = React.useState('');
+  const [usernameA, setUsernameA] = React.useState('');
+  const [passwordA, setPasswordA] = React.useState('');
 
   const navigate = useNavigate();
 
@@ -66,41 +66,29 @@ export default function Login() {
   };
 
   const onChangeUsername = (event) => {
-    setUsername(event.target.value);
+    setUsernameA(event.target.value);
   };
 
   const onChangePassword = (event) => {
-    setPassword(event.target.value);
+    setPasswordA(event.target.value);
   };
 
-  useEffect(() => {
-    const user = async () => {
-      const response = await login();
-      if (response !== undefined) setCredentials(response);
-      return response;
-    };
-    user();
-  }, []);
+  const userLog = async () => {
+    const response = await login({
+      username: usernameA,
+      password: passwordA
+    });
+    if (response !== undefined) setUser(response);
+    return response;
+  };
 
-  function validarUsuario(username, password) {
-    const user = {
-      token: '2be89b2448c7e6fc9fba85f76c8fd964a8e40987',
-      ser: {
-        username: 'admin',
-        first_name: 'ad',
-        last_name: 'min',
-        email: 'admin@admin.com',
-        is_superuser: username,
-        is_staff: password,
-        sede_nombre: null
-      },
-      message: 'Inicio de Sesión Exitoso.'
-    };
+  function validarUsuario() {
+    userLog();
 
     if (Object.keys(user).length === 3) {
-      if (user.ser.is_staff === 'true' && user.ser.is_superuser === 'true') {
+      if (user.ser.is_staff === true && user.ser.is_superuser === true) {
         navigate('/dashboard');
-      } else if (user.ser.is_staff === 'true') {
+      } else if (user.ser.is_staff === true) {
         navigate('/dashboard/products');
       } else {
         navigate('/solicitud');
@@ -165,7 +153,7 @@ export default function Login() {
             size="large"
             type="submit"
             variant="contained"
-            onClick={() => validarUsuario(username, password)}
+            onClick={() => validarUsuario()}
           >
             Login
           </Button>
