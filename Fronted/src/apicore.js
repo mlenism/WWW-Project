@@ -13,6 +13,19 @@ export const addUsuario = (data) =>
       return err.response;
     });
 
+export const addPublicidad = (data) =>
+  axios
+    .post(`${process.env.REACT_APP_API_URL}/publicidad`, data)
+    .then((res) => {
+      console.log(data);
+      console.log(res);
+      return res.data;
+    })
+    .catch((err) => {
+      console.log(err);
+      return err.response;
+    });
+
 export const getUsuario = (id) =>
   axios
     .get(`${process.env.REACT_APP_API_URL}/usuarios/${id}`)
@@ -40,4 +53,12 @@ export const login = (credentials) =>
     .catch((err) => {
       console.log(err);
       return err.response;
+    });
+
+export const getTurnos = () =>
+  axios
+    .get(`${process.env.REACT_APP_API_URL}/turno`)
+    .then((res) => res.data)
+    .catch((err) => {
+      console.log(err);
     });

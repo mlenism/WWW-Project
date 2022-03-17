@@ -32,6 +32,11 @@ const sidebarConfig =
           icon: getIcon(shoppingBagFill)
         },
         {
+          title: 'publicidad',
+          path: '/dashboard/publicidad',
+          icon: getIcon('mdi:advertisements')
+        },
+        {
           title: 'blog',
           path: '/dashboard/blog',
           icon: getIcon(fileTextFill)

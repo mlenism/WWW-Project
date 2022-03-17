@@ -17,6 +17,11 @@ class UsuarioSerializer(serializers.ModelSerializer):
         fields = ['username','first_name','last_name','email',
             'is_superuser','is_staff','sede_nombre','password']
 
+    def validate(self,data):
+        print(self)
+        print(data)
+        return data
+
     def create(self, validated_data):
         usuario = Usuario(**validated_data)
         usuario.set_password(validated_data['password'])

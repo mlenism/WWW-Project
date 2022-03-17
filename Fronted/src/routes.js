@@ -14,6 +14,7 @@ import Solicitud from './pages/Solicitud';
 import Cedula from './pages/Cedula';
 import Turnos from './pages/Turnos';
 import Confirmado from './pages/Confirmado';
+import Publicidad from './pages/Publicidad';
 // ----------------------------------------------------------------------
 
 export default function Router() {
@@ -26,6 +27,7 @@ export default function Router() {
         { path: 'app', element: <DashboardApp /> },
         { path: 'user', element: <User /> },
         { path: 'products', element: <Products /> },
+        { path: 'publicidad', element: <Publicidad /> },
         { path: 'blog', element: <Blog /> }
       ]
     },

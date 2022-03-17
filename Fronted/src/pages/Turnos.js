@@ -1,3 +1,5 @@
+/* eslint-disable camelcase */
+/* eslint-disable no-nested-ternary */
 import { filter } from 'lodash';
 import { Icon } from '@iconify/react';
 import { sentenceCase } from 'change-case';
@@ -21,8 +23,12 @@ import {
   Typography,
   TableContainer,
   TablePagination,
-  TableHead
+  TableHead,
+  Modal,
+  Box
 } from '@mui/material';
+import { getTurnos } from '../apicore';
+
 // components
 import Page from '../components/Page';
 import { MHidden } from '../components/@material-extend';
@@ -38,39 +44,47 @@ const TABLE_HEAD = [
   { id: 'servicio', label: 'Servicio', alignRight: false }
 ];
 
-const USERLIST = [
-  {
-    codigoTurno: 't21',
-    servicio: 'servicio1'
-  },
-  {
-    codigoTurno: 't22',
-    servicio: 'servicio2'
-  },
-  {
-    codigoTurno: 't23',
-    servicio: 'servicio3'
-  },
-  {
-    codigoTurno: 't24',
-    servicio: 'servicio4'
-  },
-  {
-    codigoTurno: 't25',
-    servicio: 'servicio3'
-  },
-  {
-    codigoTurno: 't26',
-    servicio: 'servicio3'
-  },
-  {
-    codigoTurno: 't27',
-    servicio: 'servicio3'
-  }
-];
+// let USERLIST = [
+//   {
+//     codigoTurno: 't21',
+//     servicio: 'servicio1'
+//   },
+//   {
+//     codigoTurno: 't22',
+//     servicio: 'servicio2'
+//   },
+//   {
+//     codigoTurno: 't23',
+//     servicio: 'servicio3'
+//   },
+//   {
+//     codigoTurno: 't24',
+//     servicio: 'servicio4'
+//   },
+//   {
+//     codigoTurno: 't25',
+//     servicio: 'servicio3'
+//   },
+//   {
+//     codigoTurno: 't26',
+//     servicio: 'servicio3'
+//   },
+//   {
+//     codigoTurno: 't27',
+//     servicio: 'servicio3'
+//   }
+// ];
 
 function Turnos() {
+  const [USERLIST, setUSERLIST] = useState([{ turno_codigo: 0 }]);
+  const [nuevoTurno, setNuevoTurno] = useState({
+    codigoTurno: 't28',
+    servicio: 'servicio3'
+  });
   const [page, setPage] = useState(0);
+  const [openModal, setOpenModal] = useState(false);
+  const modalHandler = () => setOpenModal(true);
+  const closeModal = () => setOpenModal(false);
   const [order, setOrder] = useState('asc');
   const [selected, setSelected] = useState([]);
   const [orderBy, setOrderBy] = useState('name');
@@ -78,29 +92,33 @@ function Turnos() {
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - USERLIST.length) : 0;
 
-  const [nextTurn, setNextTurn] = useState(<>Hi</>);
   let timer;
 
   const ButtonHandler = () => {
-    console.log('prueba');
-    const nuevoTurno = {
+    setNuevoTurno({
       codigoTurno: 't28',
       servicio: 'servicio3'
-    };
-    USERLIST.push(nuevoTurno);
-    console.log(USERLIST);
-    setNextTurn(
-      <SectionStyleNewTurn>
-        <Card>{nuevoTurno.codigoTurno}</Card>
-      </SectionStyleNewTurn>
-    );
-    timer = setTimeout(() => setNextTurn(<>Hi</>), 3000);
-    console.log('Hola');
+    });
+    USERLIST.unshift(nuevoTurno);
+    const aux = USERLIST.slice(0, 10);
+    setUSERLIST(aux);
+    modalHandler();
+    console.log(aux);
+    timer = setTimeout(closeModal, 1000);
   };
 
   useEffect(() => {
     clearTimeout(timer);
-  }, [nextTurn]);
+    const obtenerTurnos = async () => {
+      const res = await getTurnos();
+
+      if (res[0].turno_codigo !== USERLIST[0].turno_codigo) {
+        setUSERLIST(res);
+        console.log(res);
+      }
+    };
+    obtenerTurnos();
+  }, [USERLIST]);
 
   const RootStyle = styled(Page)(({ theme }) => ({
     [theme.breakpoints.up('md')]: {
@@ -124,6 +142,18 @@ function Turnos() {
     margin: theme.spacing(2, 0, 2, 2)
   }));
 
+  const ModalStyle = {
+    position: 'absolute',
+    top: '30%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: 400,
+    height: 200,
+    bgcolor: 'background.paper',
+    boxShadow: 24,
+    p: 4
+  };
+
   const ContentStyle = styled('div')(({ theme }) => ({
     maxWidth: 480,
     margin: 'auto',
@@ -136,7 +166,6 @@ function Turnos() {
 
   return (
     <RootStyle>
-      {nextTurn}
       <Card width="mdDown">
         <SectionStyle>
           <Typography variant="h3" sx={{ px: 5, mt: 10, mb: 5 }}>
@@ -146,16 +175,30 @@ function Turnos() {
         </SectionStyle>
       </Card>
 
-      <Container maxWidth="sm">
+      <Container maxWidth="lg">
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
           <Typography variant="h4" gutterBottom>
             Turnos
           </Typography>
         </Stack>
-
+        <Modal
+          open={openModal}
+          onClose={closeModal}
+          aria-labelledby="modal-modal-title"
+          aria-describedby="modal-modal-description"
+        >
+          <Box sx={ModalStyle}>
+            <Typography align="center" id="modal-modal-title" variant="h5" component="h2">
+              Siguiente Turno
+            </Typography>
+            <Typography align="center" id="modal-modal-title" variant="h2" sx={{ mt: 2 }}>
+              {nuevoTurno.codigoTurno}
+            </Typography>
+          </Box>
+        </Modal>
         <Card>
           <Scrollbar>
-            <TableContainer sx={{ minWidth: 800 }}>
+            <TableContainer sx={{ minWidth: 100 }}>
               <Table>
                 <TableHead>
                   <TableRow>
@@ -165,16 +208,16 @@ function Turnos() {
                 </TableHead>
                 <TableBody>
                   {USERLIST.slice(0, 10).map((row) => {
-                    const { codigoTurno, servicio } = row;
+                    const { consecutivo, servicio_nombre } = row;
 
                     return (
-                      <TableRow hover key={codigoTurno} tabIndex={-1}>
+                      <TableRow hover key={consecutivo} tabIndex={-1}>
                         <TableCell align="center">
                           <Typography variant="subtitle2" noWrap>
-                            {codigoTurno}
+                            {consecutivo}
                           </Typography>
                         </TableCell>
-                        <TableCell align="center">{servicio}</TableCell>
+                        <TableCell align="center">{servicio_nombre}</TableCell>
                       </TableRow>
                     );
                   })}
@@ -183,14 +226,14 @@ function Turnos() {
             </TableContainer>
           </Scrollbar>
         </Card>
+        <Button
+          onClick={() => {
+            ButtonHandler();
+          }}
+        >
+          NuevoTurno
+        </Button>
       </Container>
-      <Button
-        onClick={() => {
-          ButtonHandler();
-        }}
-      >
-        NuevoTurno
-      </Button>
     </RootStyle>
   );
 }
