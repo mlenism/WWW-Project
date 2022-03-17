@@ -14,6 +14,8 @@ urlpatterns = [
     
     path('turno',TurnoController.as_view({'post': 'postTurno','get': 'getTurno'  })),
     path('turno/<int:idcaja>/',TurnoController.as_view({'get': 'getTurno'})),
+    path('consultaturno/<str:idturno>/',TurnoController.as_view({'get': 'getConsultaTurno'})),
+    path('consultaposicion/<str:idturno>/',TurnoController.as_view({'get': 'getConsultaPosicionTurno'})),
 
     path('saltarturno',TurnoUpdateController.as_view({'post': 'postSaltarTurno'})),
     path('confirmarturno',TurnoUpdateController.as_view({'post': 'postConfirmarTurno'})),
