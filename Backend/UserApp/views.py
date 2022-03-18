@@ -24,734 +24,761 @@ from django.db.models import F
 
 from gtts import gTTS
 
-import random, datetime, pytz,json
+import random
+import datetime
+import pytz
+import json
 import os
 
+
 class UserToken(APIView):
-	def get(self,request,*args,**kwargs):
-		username = request.GET.get('username')
-		try:
-			user_token = Token.objects.get(user = UsuarioSerializer.Meta.model.objects.filter(username=username).first())
-			return Response({
-				'token': user_token.key
-			})
-		except:
-			return Response({
-				'error':'Credenciales enviadas incorrectas'
-			},status=status.HTTP_400_BAD_REQUEST)
+    def get(self, request, *args, **kwargs):
+        username = request.GET.get('username')
+        try:
+            user_token = Token.objects.get(
+                user=UsuarioSerializer.Meta.model.objects.filter(username=username).first())
+            return Response({
+                'token': user_token.key
+            })
+        except:
+            return Response({
+                'error': 'Credenciales enviadas incorrectas'
+            }, status=status.HTTP_400_BAD_REQUEST)
+
 
 class UsuarioApi(APIView):
 
-	values = ['username', 'first_name', 'last_name', 'email',
-		'is_superuser', 'is_staff', 'is_active',
-		'date_joined', 'password', 'sede_codigo__sede_nombre']
+    values = ['username', 'first_name', 'last_name', 'email',
+              'is_superuser', 'is_staff', 'is_active',
+              'date_joined', 'password', 'sede_codigo__sede_nombre']
 
-	def get_object(self, username):
-		try:
-			return Usuario.objects.get(username=username)
-		except Usuario.DoesNotExist:
-			raise Http404
+    def get_object(self, username):
+        try:
+            return Usuario.objects.get(username=username)
+        except Usuario.DoesNotExist:
+            raise Http404
 
-	def get(self, request, username=None, format=None):
-		if username == None:
-			usuarios = Usuario.objects.all().exclude(is_active=False).values(*self.values)
-			serializer = UsuarioSerializer(usuarios, many=True)
-		else:
-			try:
-				usuarios = Usuario.objects.exclude(is_active=False).values(*self.values).get(username=username)
-			except Usuario.DoesNotExist:
-				raise Http404
-			serializer = UsuarioSerializer(usuarios)
-		return Response(serializer.data)
+    def get(self, request, username=None, format=None):
+        if username == None:
+            usuarios = Usuario.objects.all().exclude(is_active=False).values(*self.values)
+            serializer = UsuarioSerializer(usuarios, many=True)
+        else:
+            try:
+                usuarios = Usuario.objects.exclude(is_active=False).values(
+                    *self.values).get(username=username)
+            except Usuario.DoesNotExist:
+                raise Http404
+            serializer = UsuarioSerializer(usuarios)
+        return Response(serializer.data)
 
-	def post(self, request, format=None):
-		serializer = UsuarioSerializer(data=request.data)
-		if serializer.is_valid():
-			serializer.save()
-			return Response(serializer.data, status=status.HTTP_201_CREATED)
-		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    def post(self, request, format=None):
+        serializer = UsuarioSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-	def put(self, request, username, format=None):
-		usuario = self.get_object(username)
-		passw = 'password' in request.data
-		if not passw:
-			request.data['password'] = '1d92a292f49bb163690439bdab37d979e1bc244d'
-		serializer = UsuarioSerializer(usuario, data=request.data)
-		if serializer.is_valid():
-			serializer.save()
-			return Response(serializer.data)
-		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    def put(self, request, username, format=None):
+        usuario = self.get_object(username)
+        passw = 'password' in request.data
+        if not passw:
+            request.data['password'] = '1d92a292f49bb163690439bdab37d979e1bc244d'
+        serializer = UsuarioSerializer(usuario, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-	def delete(self, request, username, format=None):
-		usuario: Usuario = self.get_object(username)
-		usuario.is_active = False
-		usuario.save()
-		return Response(status=status.HTTP_204_NO_CONTENT)
+    def delete(self, request, username, format=None):
+        usuario: Usuario = self.get_object(username)
+        usuario.is_active = False
+        usuario.save()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class Login(ObtainAuthToken):
 
-	def post(self, request, *args, **kwargs):
-		login_serializer = self.serializer_class(data = request.data, context = {'request':request})
-		if login_serializer.is_valid():
-			user: Usuario = login_serializer.validated_data['user']
-			if user.is_active:
-				token,created = Token.objects.get_or_create(user=user)
-				user_serializer = UsuarioSerializer(user)
-				if not created:
-					token.delete()
-					token = Token.objects.create(user=user)
-				respuesta = Response({
-					'token': token.key,
-					'ser': user_serializer.data,
-					'message': 'Inicio de Sesión Exitoso.'
-				},status=status.HTTP_201_CREATED)
-				return respuesta
-			else:
-				return Response({'error': 'Este usuario no puede iniciar sesión.'},status=status.HTTP_401_UNAUTHORIZED)
-		else:
-			return Response({'errror':'Nombre de usuario o contraseña incorrectos.'},status=status.HTTP_400_BAD_REQUEST)
+    def post(self, request, *args, **kwargs):
+        login_serializer = self.serializer_class(
+            data=request.data, context={'request': request})
+        if login_serializer.is_valid():
+            user: Usuario = login_serializer.validated_data['user']
+            if user.is_active:
+                token, created = Token.objects.get_or_create(user=user)
+                user_serializer = UsuarioSerializer(user)
+                if not created:
+                    token.delete()
+                    token = Token.objects.create(user=user)
+                respuesta = Response({
+                    'token': token.key,
+                    'ser': user_serializer.data,
+                    'message': 'Inicio de Sesión Exitoso.'
+                }, status=status.HTTP_201_CREATED)
+                return respuesta
+            else:
+                return Response({'error': 'Este usuario no puede iniciar sesión.'}, status=status.HTTP_401_UNAUTHORIZED)
+        else:
+            return Response({'errror': 'Nombre de usuario o contraseña incorrectos.'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class Logout(APIView):
 
-	def post(self,request,*args,**kwargs):
-		token = request.GET.get('token')
-		if token:
-			token = Token.objects.filter(key=token)
-			if token:
-				token.delete()
-				return Response({'token_message':'Token eliminado'},status=status.HTTP_200_OK)
-			else:
-				return Response({'error':'No se ha encontrado un usuario con estas credenciales'},status=status.HTTP_400_BAD_REQUEST)
-		else:
-			return Response({'error':'Formulario incorrecto'},status=status.HTTP_400_BAD_REQUEST)
+    def post(self, request, *args, **kwargs):
+        token = request.GET.get('token')
+        if token:
+            token = Token.objects.filter(key=token)
+            if token:
+                token.delete()
+                return Response({'token_message': 'Token eliminado'}, status=status.HTTP_200_OK)
+            else:
+                return Response({'error': 'No se ha encontrado un usuario con estas credenciales'}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response({'error': 'Formulario incorrecto'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class Estadisticas(APIView):
 
-	def get(self,request,*args,**kwargs):
-		# Obetner la cantidad de turnos por día para cada servicio
-		service_name = 'servicio_codigo__servicio_nombre'
-		servicios_x_dia = Turno.objects.filter(turno_fecha__gte=date.today()).values(service_name).annotate(count=Count(service_name)).order_by('count')
-		turnos_servicio_x_dia = {}
-		for dict in servicios_x_dia:
-			turnos_servicio_x_dia[dict['servicio_codigo__servicio_nombre']]=dict['count']
-		
-		# Obtener comparacion de servicios los ultimos 10 dias
-		ultimos_10_dias = date.today()-timedelta(days=10)
-		general = Turno.objects.filter(servicio_codigo__servicio_nombre='GENERAL', turno_fecha__lte=date.today(), turno_fecha__gt=ultimos_10_dias).values('turno_fecha').annotate(count=Count('turno_fecha')).order_by('turno_fecha')
-		imp_exp = Turno.objects.filter(servicio_codigo__servicio_nombre='IMPORTACION Y EXPORTACION', turno_fecha__lte=date.today(), turno_fecha__gt=ultimos_10_dias).values('turno_fecha').annotate(count=Count('turno_fecha')).order_by('turno_fecha')
-		transac = Turno.objects.filter(servicio_codigo__servicio_nombre='TRANSACCION DOLARES', turno_fecha__lte=date.today(), turno_fecha__gt=ultimos_10_dias).values('turno_fecha').annotate(count=Count('turno_fecha')).order_by('turno_fecha')
-		vip = Turno.objects.filter(servicio_codigo__servicio_nombre='VIP', turno_fecha__lte=date.today(), turno_fecha__gt=ultimos_10_dias).values('turno_fecha').annotate(count=Count('turno_fecha')).order_by('turno_fecha')
-		seguros = Turno.objects.filter(servicio_codigo__servicio_nombre='SEGUROS', turno_fecha__lte=date.today(), turno_fecha__gt=ultimos_10_dias).values('turno_fecha').annotate(count=Count('turno_fecha')).order_by('turno_fecha')
+    def get(self, request, *args, **kwargs):
+        # Obetner la cantidad de turnos por día para cada servicio
+        service_name = 'servicio_codigo__servicio_nombre'
+        servicios_x_dia = Turno.objects.filter(turno_fecha__gte=date.today()).values(
+            service_name).annotate(count=Count(service_name)).order_by('count')
+        turnos_servicio_x_dia = {}
+        for dict in servicios_x_dia:
+            turnos_servicio_x_dia[dict['servicio_codigo__servicio_nombre']
+                                  ] = dict['count']
 
-		list_aux = []
-		list_fechas = []
-		for dict2 in general:
-			list_aux.append(dict2['count'])
-			list_fechas.append(dict2['turno_fecha'])
-		general_data = {'name':'GENERAL','data':list_aux}
-		list_aux = []
-		for dict2 in imp_exp:
-			list_aux.append(dict2['count'])
-		imp_data = {'name':'IMPORTACION Y EXPORTACION','data':list_aux}
-		list_aux = []
-		for dict2 in transac:
-			list_aux.append(dict2['count'])
-		trans_data = {'name':'TRANSACCION DOLARES','data':list_aux}
-		list_aux = []
-		for dict2 in vip:
-			list_aux.append(dict2['count'])
-		vip_data = {'name':'VIP','data':list_aux}
-		list_aux = []
-		for dict2 in seguros:
-			list_aux.append(dict2['count'])
-		seguros_data = {'name':'SEGUROS','data':list_aux}
-		fechas_data = {'name':'FECHAS','data':list_fechas}
-		chart_data = [fechas_data, general_data, imp_data, trans_data, vip_data, seguros_data]
-		data_to_send = [turnos_servicio_x_dia,chart_data]
+        # Obtener comparacion de servicios los ultimos 10 dias
+        ultimos_10_dias = date.today()-timedelta(days=10)
+        general = Turno.objects.filter(servicio_codigo__servicio_nombre='GENERAL', turno_fecha__lte=date.today(
+        ), turno_fecha__gt=ultimos_10_dias).values('turno_fecha').annotate(count=Count('turno_fecha')).order_by('turno_fecha')
+        imp_exp = Turno.objects.filter(servicio_codigo__servicio_nombre='IMPORTACION Y EXPORTACION', turno_fecha__lte=date.today(
+        ), turno_fecha__gt=ultimos_10_dias).values('turno_fecha').annotate(count=Count('turno_fecha')).order_by('turno_fecha')
+        transac = Turno.objects.filter(servicio_codigo__servicio_nombre='TRANSACCION DOLARES', turno_fecha__lte=date.today(
+        ), turno_fecha__gt=ultimos_10_dias).values('turno_fecha').annotate(count=Count('turno_fecha')).order_by('turno_fecha')
+        vip = Turno.objects.filter(servicio_codigo__servicio_nombre='VIP', turno_fecha__lte=date.today(
+        ), turno_fecha__gt=ultimos_10_dias).values('turno_fecha').annotate(count=Count('turno_fecha')).order_by('turno_fecha')
+        seguros = Turno.objects.filter(servicio_codigo__servicio_nombre='SEGUROS', turno_fecha__lte=date.today(
+        ), turno_fecha__gt=ultimos_10_dias).values('turno_fecha').annotate(count=Count('turno_fecha')).order_by('turno_fecha')
 
-		return Response(data_to_send,status=status.HTTP_200_OK)
+        list_aux = []
+        list_fechas = []
+        for dict2 in general:
+            list_aux.append(dict2['count'])
+            list_fechas.append(dict2['turno_fecha'])
+        general_data = {'name': 'GENERAL', 'data': list_aux}
+        list_aux = []
+        for dict2 in imp_exp:
+            list_aux.append(dict2['count'])
+        imp_data = {'name': 'IMPORTACION Y EXPORTACION', 'data': list_aux}
+        list_aux = []
+        for dict2 in transac:
+            list_aux.append(dict2['count'])
+        trans_data = {'name': 'TRANSACCION DOLARES', 'data': list_aux}
+        list_aux = []
+        for dict2 in vip:
+            list_aux.append(dict2['count'])
+        vip_data = {'name': 'VIP', 'data': list_aux}
+        list_aux = []
+        for dict2 in seguros:
+            list_aux.append(dict2['count'])
+        seguros_data = {'name': 'SEGUROS', 'data': list_aux}
+        fechas_data = {'name': 'FECHAS', 'data': list_fechas}
+        chart_data = [fechas_data, general_data,
+                      imp_data, trans_data, vip_data, seguros_data]
+        data_to_send = [turnos_servicio_x_dia, chart_data]
+
+        return Response({'data': data_to_send}, status=status.HTTP_200_OK)
 
 
 class Aleatorio(APIView):
-	
-	def get(self, request, limite, format=None):
-		
-		colombia = pytz.timezone('America/Bogota')
-		#Define la fecha actual del sistema
-		dt =datetime.datetime.now()
-		fecha_creacion = colombia.localize(dt).strftime("%Y-%m-%d");
-		
-		#Calcula valores por defecto que se requieren para realizar los insert a la base de datos, estado y persona
-		obj_estado   = Estado.objects.get(estado_codigo=1)
-		obj_persona  = Persona.objects.get(persona_codigo=1)
-			
-		i=0
-		while i < limite:
-			# Para que las horas sean distitas unas de otras se incrementa 20 segundos en cada iteraccion
-			tiempo_adicional = datetime.timedelta(hours=0,minutes=0,seconds=20*(limite-i))
-			hora_creacion = (colombia.localize(datetime.datetime.now()) -tiempo_adicional).strftime("%H:%M:%S");
-			
-			#Se calcula un servicio de manera aleatoria y se actualiza el consecutivo, 
-			id_servicio = random.randint(1,5)
-			obj_servicio = Servicio.objects.get(servicio_codigo=id_servicio)
-			obj_servicio.servicio_consecutivoactual=obj_servicio.servicio_consecutivoactual+1;
-			obj_servicio.save()
-			
-			#respuesta="Ok  Limite %i  Random %s Servicio %i Fecha %s Hora %s " %(limite,id_servicio,obj_servicio.servicio_codigo,fecha_creacion,hora_creacion) 
-			#Se inserta el registros en BD
-			turno = Turno(turno_fecha=fecha_creacion,
-				turno_hora=hora_creacion,
-				servicio_codigo=obj_servicio,
-				turno_consecutivo=obj_servicio.servicio_consecutivoactual,
-				estado_codigo=obj_estado,
-				persona_codigo=obj_persona)
-			turno.save()
-			i=i+1
-		respuesta="Turnos Aleatorios Creados"
-		return HttpResponse(respuesta )
+
+    def get(self, request, limite, format=None):
+
+        colombia = pytz.timezone('America/Bogota')
+        # Define la fecha actual del sistema
+        dt = datetime.datetime.now()
+        fecha_creacion = colombia.localize(dt).strftime("%Y-%m-%d")
+
+        # Calcula valores por defecto que se requieren para realizar los insert a la base de datos, estado y persona
+        obj_estado = Estado.objects.get(estado_codigo=1)
+        obj_persona = Persona.objects.get(persona_codigo=1)
+
+        i = 0
+        while i < limite:
+            # Para que las horas sean distitas unas de otras se incrementa 20 segundos en cada iteraccion
+            tiempo_adicional = datetime.timedelta(
+                hours=0, minutes=0, seconds=20*(limite-i))
+            hora_creacion = (colombia.localize(
+                datetime.datetime.now()) - tiempo_adicional).strftime("%H:%M:%S")
+
+            # Se calcula un servicio de manera aleatoria y se actualiza el consecutivo,
+            id_servicio = random.randint(1, 5)
+            obj_servicio = Servicio.objects.get(servicio_codigo=id_servicio)
+            obj_servicio.servicio_consecutivoactual = obj_servicio.servicio_consecutivoactual+1
+            obj_servicio.save()
+
+            #respuesta="Ok  Limite %i  Random %s Servicio %i Fecha %s Hora %s " %(limite,id_servicio,obj_servicio.servicio_codigo,fecha_creacion,hora_creacion)
+            # Se inserta el registros en BD
+            turno = Turno(turno_fecha=fecha_creacion,
+                          turno_hora=hora_creacion,
+                          servicio_codigo=obj_servicio,
+                          turno_consecutivo=obj_servicio.servicio_consecutivoactual,
+                          estado_codigo=obj_estado,
+                          persona_codigo=obj_persona)
+            turno.save()
+            i = i+1
+        respuesta = "Turnos Aleatorios Creados"
+        return HttpResponse(respuesta)
+
 
 class TurnoController(viewsets.ModelViewSet):
-	queryset = Turno.objects.all()
-	serializer_class = PostTurnoSerializer
+    queryset = Turno.objects.all()
+    serializer_class = PostTurnoSerializer
 
-	
-	@action(detail=True, methods=['post'])
-	def postTurno(self, request):
-		dataTurno={}
-		dataTurno['estado_codigo']=1		
-		dataTurno['servicio_codigo']=request.data['servicio_codigo']
-		dataTurno['persona_codigo']=request.data['persona_codigo']
-		
+    @action(detail=True, methods=['post'])
+    def postTurno(self, request):
+        dataTurno = {}
+        dataTurno['estado_codigo'] = 1
+        dataTurno['servicio_codigo'] = request.data['servicio_codigo']
+        dataTurno['persona_codigo'] = request.data['persona_codigo']
 
-		try:
-			obj_servicio = Servicio.objects.get(servicio_codigo=request.data['servicio_codigo'])
-			obj_servicio.servicio_consecutivoactual=obj_servicio.servicio_consecutivoactual+1
-			obj_servicio.save()
-			
-			dataTurno['turno_consecutivo'] = obj_servicio.servicio_consecutivoactual
-			respuesta = 'Consecutivo creado '+obj_servicio.servicio_prefijo+'-'+str(obj_servicio.servicio_consecutivoactual)
-		except Servicio.DoesNotExist:
-			return Response('Servicio enviado no existe',status=status.HTTP_400_BAD_REQUEST)
+        try:
+            obj_servicio = Servicio.objects.get(
+                servicio_codigo=request.data['servicio_codigo'])
+            obj_servicio.servicio_consecutivoactual = obj_servicio.servicio_consecutivoactual+1
+            obj_servicio.save()
 
+            dataTurno['turno_consecutivo'] = obj_servicio.servicio_consecutivoactual
+            respuesta = 'Consecutivo creado '+obj_servicio.servicio_prefijo + \
+                '-'+str(obj_servicio.servicio_consecutivoactual)
+        except Servicio.DoesNotExist:
+            return Response('Servicio enviado no existe', status=status.HTTP_400_BAD_REQUEST)
 
-		serializer=TurnoSerializer(data=dataTurno)
-		
-		if serializer.is_valid():
-			serializer.save()
-			
-			return Response({'status':respuesta})
-		else:
-			return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+        serializer = TurnoSerializer(data=dataTurno)
 
-	@action(detail=True, methods=['get'])
-	def getTurno(self, request,idcaja=None):
-		if idcaja == None:
-			
-			queryset = VwTurno.objects.filter(estado_codigo__in=[1, 4]).order_by('-prioridad','turno_fecha','turno_hora')[:10]
-			serializer = VwTurnoSerializer(queryset, many=True)
-			return Response(serializer.data)
+        if serializer.is_valid():
+            serializer.save()
 
-		try:
-			obj_caja   = Caja.objects.get(caja_codigo=idcaja)
-		
+            return Response({'status': respuesta})
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-			
-			registros=Turno.objects.filter(estado_codigo=4,caja_codigo_id=idcaja).count()
-				
-			if registros>0 :
-				queryset = VwTurno.objects.filter(estado_codigo=4).filter(caja_codigo=idcaja)[:1]
-				consecutivo = queryset[0].consecutivo
-				
-				serializer = VwTurnoSerializer(queryset, many=True)
-				tts("Turno "+consecutivo+"  "+obj_caja.caja_nombre, 'es', django_settings.STATIC_ROOT+'/%s.mp3'%consecutivo) 
-				
-				return Response(serializer.data)
-			else :
-			
-				
-				count = VwTurno.objects.filter(servicio_codigo_id=obj_caja.servicio_codigo).filter(estado_codigo=1).count()
-		
-				if count >0 :
-					queryset = VwTurno.objects.filter(servicio_codigo_id=obj_caja.servicio_codigo).filter(estado_codigo=1).order_by('-prioridad','turno_fecha','turno_hora')[:1]					
-					
-				else:
-					count = VwTurno.objects.filter(estado_codigo=1).count()
-					if count>0 :
-						queryset = VwTurno.objects.filter(estado_codigo=1).order_by('-prioridad','turno_fecha','turno_hora')[:1]
-						
-					else :
-						return Response('No existen Turnos Disponibles',status=status.HTTP_404_NOT_FOUND)				
+    @action(detail=True, methods=['get'])
+    def getTurno(self, request, idcaja=None):
+        if idcaja == None:
 
-				Turno.objects.filter(turno_codigo=queryset[0].turno_codigo).update(estado_codigo=4,caja_codigo_id=idcaja)
-				
-				
-				queryset = VwTurno.objects.filter(estado_codigo=4).filter(caja_codigo=idcaja)[:1]
-				consecutivo = queryset[0].consecutivo
-				
-				serializer = VwTurnoSerializer(queryset, many=True)
-				
-				tts("Turno "+consecutivo+"  "+obj_caja.caja_nombre, 'es', django_settings.STATIC_ROOT+'/%s.mp3'%consecutivo) 
-				return Response(serializer.data)
+            queryset = VwTurno.objects.filter(estado_codigo__in=[1, 4]).order_by(
+                '-prioridad', 'turno_fecha', 'turno_hora')[:10]
+            serializer = VwTurnoSerializer(queryset, many=True)
+            return Response(serializer.data)
 
-		except Caja.DoesNotExist:
-			return Response('Caja enviada no existe',status=status.HTTP_404_NOT_FOUND)
+        try:
+            obj_caja = Caja.objects.get(caja_codigo=idcaja)
 
-	@action(detail=True, methods=['get'])
-	def getConsultaTurno(self, request,idturno):
-					
-		queryset = VwTurno.objects.filter(consecutivo=idturno).order_by('-turno_fecha','-turno_hora')[:1]
-		serializer = VwTurnoSerializer(queryset, many=True)
-		return Response(serializer.data)
+            registros = Turno.objects.filter(
+                estado_codigo=4, caja_codigo_id=idcaja).count()
 
-	@action(detail=True, methods=['get'])
-	def getConsultaPosicionTurno(self, request,idturno):
-		try:			
-			turno = VwTurno.objects.filter(consecutivo=idturno).order_by('-turno_fecha','-turno_hora')[:1]
-			idturno=turno[0].turno_codigo
-			idservicio=turno[0].servicio_codigo_id
-			idestado=turno[0].estado_codigo
+            if registros > 0:
+                queryset = VwTurno.objects.filter(
+                    estado_codigo=4).filter(caja_codigo=idcaja)[:1]
+                consecutivo = queryset[0].consecutivo
 
+                serializer = VwTurnoSerializer(queryset, many=True)
+                tts("Turno "+consecutivo+"  "+obj_caja.caja_nombre, 'es',
+                    django_settings.STATIC_ROOT+'/%s.mp3' % consecutivo)
 
+                return Response(serializer.data)
+            else:
 
-			if idestado!=1:
-				Response("El turno ya fue tramitado",status=status.HTTP_404_NOT_FOUND)
-			else:
-				turno = VwTurno.objects.filter(estado_codigo=1).filter(servicio_codigo_id=idservicio).order_by('-prioridad','turno_fecha','turno_hora')
-				contador=1
-				auxservicio=0
-				for data in turno:
-					
-					if data.turno_codigo == idturno:
-						auxservicio=contador
-					
-					contador=contador+1
+                count = VwTurno.objects.filter(
+                    servicio_codigo_id=obj_caja.servicio_codigo).filter(estado_codigo=1).count()
 
+                if count > 0:
+                    queryset = VwTurno.objects.filter(servicio_codigo_id=obj_caja.servicio_codigo).filter(
+                        estado_codigo=1).order_by('-prioridad', 'turno_fecha', 'turno_hora')[:1]
 
-				turno = VwTurno.objects.filter(estado_codigo=1).order_by('-prioridad','turno_fecha','turno_hora')
-				contador=1
-				auxgeneral=0
-				for data in turno:
-					if data.turno_codigo == idturno:
-						auxgeneral=contador
-					
-					contador=contador+1
+                else:
+                    count = VwTurno.objects.filter(estado_codigo=1).count()
+                    if count > 0:
+                        queryset = VwTurno.objects.filter(estado_codigo=1).order_by(
+                            '-prioridad', 'turno_fecha', 'turno_hora')[:1]
 
-				dic =  dict(servicio=auxservicio, general=auxgeneral)
+                    else:
+                        return Response('No existen Turnos Disponibles', status=status.HTTP_404_NOT_FOUND)
 
-			return Response(dic)
-		except:
-			return Response("No existe el turno o ya fue tramitado",status=status.HTTP_404_NOT_FOUND)
-	
+                Turno.objects.filter(turno_codigo=queryset[0].turno_codigo).update(
+                    estado_codigo=4, caja_codigo_id=idcaja)
+
+                queryset = VwTurno.objects.filter(
+                    estado_codigo=4).filter(caja_codigo=idcaja)[:1]
+                consecutivo = queryset[0].consecutivo
+
+                serializer = VwTurnoSerializer(queryset, many=True)
+
+                tts("Turno "+consecutivo+"  "+obj_caja.caja_nombre, 'es',
+                    django_settings.STATIC_ROOT+'/%s.mp3' % consecutivo)
+                return Response(serializer.data)
+
+        except Caja.DoesNotExist:
+            return Response('Caja enviada no existe', status=status.HTTP_404_NOT_FOUND)
+
+    @action(detail=True, methods=['get'])
+    def getConsultaTurno(self, request, idturno):
+
+        queryset = VwTurno.objects.filter(consecutivo=idturno).order_by(
+            '-turno_fecha', '-turno_hora')[:1]
+        serializer = VwTurnoSerializer(queryset, many=True)
+        return Response(serializer.data)
+
+    @action(detail=True, methods=['get'])
+    def getConsultaPosicionTurno(self, request, idturno):
+        try:
+            turno = VwTurno.objects.filter(consecutivo=idturno).order_by(
+                '-turno_fecha', '-turno_hora')[:1]
+            idturno = turno[0].turno_codigo
+            idservicio = turno[0].servicio_codigo_id
+            idestado = turno[0].estado_codigo
+
+            if idestado != 1:
+                Response("El turno ya fue tramitado",
+                         status=status.HTTP_404_NOT_FOUND)
+            else:
+                turno = VwTurno.objects.filter(estado_codigo=1).filter(
+                    servicio_codigo_id=idservicio).order_by('-prioridad', 'turno_fecha', 'turno_hora')
+                contador = 1
+                auxservicio = 0
+                for data in turno:
+
+                    if data.turno_codigo == idturno:
+                        auxservicio = contador
+
+                    contador = contador+1
+
+                turno = VwTurno.objects.filter(estado_codigo=1).order_by(
+                    '-prioridad', 'turno_fecha', 'turno_hora')
+                contador = 1
+                auxgeneral = 0
+                for data in turno:
+                    if data.turno_codigo == idturno:
+                        auxgeneral = contador
+
+                    contador = contador+1
+
+                dic = dict(servicio=auxservicio, general=auxgeneral)
+
+            return Response(dic)
+        except:
+            return Response("No existe el turno o ya fue tramitado", status=status.HTTP_404_NOT_FOUND)
 
 
 class TurnoUpdateController(viewsets.ModelViewSet):
-	queryset = Turno.objects.all()
-	serializer_class = PostTurnoUpdateSerializer
+    queryset = Turno.objects.all()
+    serializer_class = PostTurnoUpdateSerializer
 
-	@action(detail=True, methods=['post'])
-	def postSaltarTurno(self, request):
-		
-		try:
-			turno = Turno.objects.filter(turno_codigo=request.data["turno_codigo"])
-			estado=turno[0].estado_codigo.estado_codigo
-			if estado==4:
-				colombia = pytz.timezone('America/Bogota')
-				dt =datetime.datetime.now()
-				fecha_ejec = colombia.localize(dt).strftime("%Y-%m-%d")
-				hora_ejec = colombia.localize(dt).strftime("%H:%M:%S")
-				Turno.objects.filter(turno_codigo=request.data["turno_codigo"]).update(estado_codigo=3,turno_fechaejecucion=fecha_ejec,turno_horaejecucion=hora_ejec)
-				return Response("Turno Saltado")
-			elif estado==3:	
-				return Response("Turno Ya en estado Saltado",status=status.HTTP_200_OK)
-			elif estado==2:	
-				return Response("Turno esta Confirmado",status=status.HTTP_400_BAD_REQUEST)
-			elif estado==1:	
-				return Response("Turno No Valido Para Saltar",status=status.HTTP_400_BAD_REQUEST)
-			else:
-				return Response("Error en el estado del turno %s"%estado,status=status.HTTP_400_BAD_REQUEST)
-		except:
-			return Response("Enviar turno correcto ",status=status.HTTP_400_BAD_REQUEST)
-	
-	@action(detail=True, methods=['post'])
-	def postConfirmarTurno(self, request):
+    @action(detail=True, methods=['post'])
+    def postSaltarTurno(self, request):
 
-		try:
-			turno = Turno.objects.filter(turno_codigo=request.data["turno_codigo"])
-			estado=turno[0].estado_codigo.estado_codigo
-			if estado==4:
-				colombia = pytz.timezone('America/Bogota')
-				dt =datetime.datetime.now()
-				fecha_ejec = colombia.localize(dt).strftime("%Y-%m-%d")
-				hora_ejec = colombia.localize(dt).strftime("%H:%M:%S")
-				Turno.objects.filter(turno_codigo=request.data["turno_codigo"]).update(estado_codigo=2,turno_fechaejecucion=fecha_ejec,turno_horaejecucion=hora_ejec)
-				return Response("Turno Confirmado")
-			elif estado==3:	
-				return Response("Turno esta en estado SALTADO",status=status.HTTP_400_BAD_REQUEST)
-			elif estado==2:	
-				return Response("Turno Ya esta Confirmado",status=status.HTTP_200_OK)
-			elif estado==1:	
-				return Response("Turno No Valido Para Confirmar",status=status.HTTP_400_BAD_REQUEST)
-			else:
-				return Response("Error en el estado del turno %s"%estado,status=status.HTTP_400_BAD_REQUEST)
-		except:
-			return Response("Enviar turno correcto ",status=status.HTTP_400_BAD_REQUEST)
+        try:
+            turno = Turno.objects.filter(
+                turno_codigo=request.data["turno_codigo"])
+            estado = turno[0].estado_codigo.estado_codigo
+            if estado == 4:
+                colombia = pytz.timezone('America/Bogota')
+                dt = datetime.datetime.now()
+                fecha_ejec = colombia.localize(dt).strftime("%Y-%m-%d")
+                hora_ejec = colombia.localize(dt).strftime("%H:%M:%S")
+                Turno.objects.filter(turno_codigo=request.data["turno_codigo"]).update(
+                    estado_codigo=3, turno_fechaejecucion=fecha_ejec, turno_horaejecucion=hora_ejec)
+                return Response("Turno Saltado")
+            elif estado == 3:
+                return Response("Turno Ya en estado Saltado", status=status.HTTP_200_OK)
+            elif estado == 2:
+                return Response("Turno esta Confirmado", status=status.HTTP_400_BAD_REQUEST)
+            elif estado == 1:
+                return Response("Turno No Valido Para Saltar", status=status.HTTP_400_BAD_REQUEST)
+            else:
+                return Response("Error en el estado del turno %s" % estado, status=status.HTTP_400_BAD_REQUEST)
+        except:
+            return Response("Enviar turno correcto ", status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=True, methods=['post'])
+    def postConfirmarTurno(self, request):
+
+        try:
+            turno = Turno.objects.filter(
+                turno_codigo=request.data["turno_codigo"])
+            estado = turno[0].estado_codigo.estado_codigo
+            if estado == 4:
+                colombia = pytz.timezone('America/Bogota')
+                dt = datetime.datetime.now()
+                fecha_ejec = colombia.localize(dt).strftime("%Y-%m-%d")
+                hora_ejec = colombia.localize(dt).strftime("%H:%M:%S")
+                Turno.objects.filter(turno_codigo=request.data["turno_codigo"]).update(
+                    estado_codigo=2, turno_fechaejecucion=fecha_ejec, turno_horaejecucion=hora_ejec)
+                return Response("Turno Confirmado")
+            elif estado == 3:
+                return Response("Turno esta en estado SALTADO", status=status.HTTP_400_BAD_REQUEST)
+            elif estado == 2:
+                return Response("Turno Ya esta Confirmado", status=status.HTTP_200_OK)
+            elif estado == 1:
+                return Response("Turno No Valido Para Confirmar", status=status.HTTP_400_BAD_REQUEST)
+            else:
+                return Response("Error en el estado del turno %s" % estado, status=status.HTTP_400_BAD_REQUEST)
+        except:
+            return Response("Enviar turno correcto ", status=status.HTTP_400_BAD_REQUEST)
 
 
 class SedeController(viewsets.ModelViewSet):
-	queryset = Sede.objects.all()
-	serializer_class = PostSedeSerializer
+    queryset = Sede.objects.all()
+    serializer_class = PostSedeSerializer
 
-	
-	@action(detail=True, methods=['post'])
-	def postSede(self, request):
-		
+    @action(detail=True, methods=['post'])
+    def postSede(self, request):
 
-		serializer=SedeSerializer(data=request.data)
-		
-		if serializer.is_valid():
-			serializer.save()
-			
-			return Response({'status':'Sede Ingresada'})
-		else:
-			return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+        serializer = SedeSerializer(data=request.data)
 
-	@action(detail=True, methods=['get'])
-	def getSede(self, request,idsede=None):
-		if idsede == None:
-			queryset = Sede.objects.all()
-			serializer = SedeSerializer(queryset, many=True)
-			return Response(serializer.data)
-		else:	
-			queryset = Sede.objects.all()
-			sede = get_object_or_404(queryset, pk=idsede)
-			serializer = SedeSerializer(sede)
-			return Response(serializer.data)
+        if serializer.is_valid():
+            serializer.save()
 
-	@action(detail=True, methods=['put'])
-	def putSede(self, request):
-		
-		sede = self.get_object(request.data["sede_codigo"])
-		serializer = SedeSerializer(sede, data=request.data)
-		if serializer.is_valid():
-			serializer.save()
-			return Response(serializer.data)
-		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)		
-	
-	def get_object(self, sede_codigo):
-		try:
-			return Sede.objects.get(sede_codigo=sede_codigo)
-		except Sede.DoesNotExist:
-			raise Http404		
+            return Response({'status': 'Sede Ingresada'})
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=True, methods=['get'])
+    def getSede(self, request, idsede=None):
+        if idsede == None:
+            queryset = Sede.objects.all()
+            serializer = SedeSerializer(queryset, many=True)
+            return Response(serializer.data)
+        else:
+            queryset = Sede.objects.all()
+            sede = get_object_or_404(queryset, pk=idsede)
+            serializer = SedeSerializer(sede)
+            return Response(serializer.data)
+
+    @action(detail=True, methods=['put'])
+    def putSede(self, request):
+
+        sede = self.get_object(request.data["sede_codigo"])
+        serializer = SedeSerializer(sede, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def get_object(self, sede_codigo):
+        try:
+            return Sede.objects.get(sede_codigo=sede_codigo)
+        except Sede.DoesNotExist:
+            raise Http404
+
 
 class ServicioController(viewsets.ModelViewSet):
-	queryset = Servicio.objects.all()
-	serializer_class = PostServicioSerializer
+    queryset = Servicio.objects.all()
+    serializer_class = PostServicioSerializer
 
-	
-	@action(detail=True, methods=['post'])
-	def postServicio(self, request):
-		
-		serializer=ServicioSerializer(data=request.data)
-		
-		if serializer.is_valid():
-			serializer.save()
-			
-			return Response({'status':'Servicio Registrado'})
-		else:
-			return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+    @action(detail=True, methods=['post'])
+    def postServicio(self, request):
 
-	@action(detail=True, methods=['get'])
-	def getServicio(self, request,idservicio=None):
-		if idservicio == None:
-			queryset = Servicio.objects.all()
-			serializer = ServicioSerializer(queryset, many=True)
-			return Response(serializer.data)
-		else:	
-			queryset = Servicio.objects.all()
-			servicio = get_object_or_404(queryset, pk=idservicio)
-			serializer = ServicioSerializer(servicio)
-			return Response(serializer.data)
+        serializer = ServicioSerializer(data=request.data)
 
+        if serializer.is_valid():
+            serializer.save()
 
-	@action(detail=True, methods=['put'])
-	def putServicio(self, request):
-		
-		servicio = self.get_object(request.data["servicio_codigo"])
-		serializer = ServicioSerializer(servicio, data=request.data)
-		if serializer.is_valid():
-			serializer.save()
-			return Response(serializer.data)
-		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)		
-	
-	@action(detail=True, methods=['post'])
-	def postInicializarServicio(self, request):
-		
-		Servicio.objects.filter(servicio_codigo=request.data["servicio_codigo"]).update(servicio_consecutivoactual='0')
-		return Response({'status':'Consecutivos inicializados'})
+            return Response({'status': 'Servicio Registrado'})
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-	def get_object(self, servicio_codigo):
-		try:
-			return Servicio.objects.get(servicio_codigo=servicio_codigo)
-		except Servicio.DoesNotExist:
-			raise Http404		
+    @action(detail=True, methods=['get'])
+    def getServicio(self, request, idservicio=None):
+        if idservicio == None:
+            queryset = Servicio.objects.all()
+            serializer = ServicioSerializer(queryset, many=True)
+            return Response(serializer.data)
+        else:
+            queryset = Servicio.objects.all()
+            servicio = get_object_or_404(queryset, pk=idservicio)
+            serializer = ServicioSerializer(servicio)
+            return Response(serializer.data)
+
+    @action(detail=True, methods=['put'])
+    def putServicio(self, request):
+
+        servicio = self.get_object(request.data["servicio_codigo"])
+        serializer = ServicioSerializer(servicio, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=True, methods=['post'])
+    def postInicializarServicio(self, request):
+
+        Servicio.objects.filter(servicio_codigo=request.data["servicio_codigo"]).update(
+            servicio_consecutivoactual='0')
+        return Response({'status': 'Consecutivos inicializados'})
+
+    def get_object(self, servicio_codigo):
+        try:
+            return Servicio.objects.get(servicio_codigo=servicio_codigo)
+        except Servicio.DoesNotExist:
+            raise Http404
+
 
 class CajaController(viewsets.ModelViewSet):
-	queryset = Caja.objects.all()
-	serializer_class = PostCajaSerializer
+    queryset = Caja.objects.all()
+    serializer_class = PostCajaSerializer
 
-	
-	@action(detail=True, methods=['post'])
-	def postCaja(self, request):
-		
-		serializer=CajaSerializer(data=request.data)
-		
-		if serializer.is_valid():
-			serializer.save()
-			
-			return Response({'status':'Caja Registrado'})
-		else:
-			return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+    @action(detail=True, methods=['post'])
+    def postCaja(self, request):
 
-	@action(detail=True, methods=['get'])
-	def getCaja(self, request,idcaja=None):
-		if idcaja == None:
-			queryset = Caja.objects.all()
-			serializer = CajaSerializer(queryset, many=True)
-			return Response(serializer.data)
-		else:	
-			queryset = Caja.objects.all()
-			caja = get_object_or_404(queryset, pk=idcaja)
-			serializer = CajaSerializer(caja)
-			return Response(serializer.data)
+        serializer = CajaSerializer(data=request.data)
 
-	@action(detail=True, methods=['get'])
-	def getCajaUsuario(self, request,username):
-		
-			
-			if Caja.objects.filter(username=username).count()>0 :
-				queryset = Caja.objects.filter(username=username)
-				serializer = CajaSerializer(queryset, many=True)
-				return Response(serializer.data)
-			else :
-				queryset=Caja.objects.filter(username__isnull=True)			
-				serializer = CajaSerializer(queryset,  many=True)
-				return Response(serializer.data)
-	
+        if serializer.is_valid():
+            serializer.save()
 
-	@action(detail=True, methods=['put'])
-	def putCaja(self, request):
-		
-		caja = self.get_object(request.data["caja_codigo"])
-		serializer = CajaSerializer(caja, data=request.data)
-		if serializer.is_valid():
-			serializer.save()
-			return Response(serializer.data)
-		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)		
-	
-	def get_object(self, caja_codigo):
-		try:
-			return Caja.objects.get(caja_codigo=caja_codigo)
-		except Caja.DoesNotExist:
-			raise Http404
+            return Response({'status': 'Caja Registrado'})
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=True, methods=['get'])
+    def getCaja(self, request, idcaja=None):
+        if idcaja == None:
+            queryset = Caja.objects.all()
+            serializer = CajaSerializer(queryset, many=True)
+            return Response(serializer.data)
+        else:
+            queryset = Caja.objects.all()
+            caja = get_object_or_404(queryset, pk=idcaja)
+            serializer = CajaSerializer(caja)
+            return Response(serializer.data)
+
+    @action(detail=True, methods=['get'])
+    def getCajaUsuario(self, request, username):
+
+        if Caja.objects.filter(username=username).count() > 0:
+            queryset = Caja.objects.filter(username=username)
+            serializer = CajaSerializer(queryset, many=True)
+            return Response(serializer.data)
+        else:
+            queryset = Caja.objects.filter(username__isnull=True)
+            serializer = CajaSerializer(queryset,  many=True)
+            return Response(serializer.data)
+
+    @action(detail=True, methods=['put'])
+    def putCaja(self, request):
+
+        caja = self.get_object(request.data["caja_codigo"])
+        serializer = CajaSerializer(caja, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def get_object(self, caja_codigo):
+        try:
+            return Caja.objects.get(caja_codigo=caja_codigo)
+        except Caja.DoesNotExist:
+            raise Http404
 
 
 class EstadoController(viewsets.ModelViewSet):
-	queryset = Estado.objects.all()
-	serializer_class = PostEstadoSerializer
+    queryset = Estado.objects.all()
+    serializer_class = PostEstadoSerializer
 
-	
-	@action(detail=True, methods=['post'])
-	def postEstado(self, request):
-		
-		serializer=EstadoSerializer(data=request.data)
-		
-		if serializer.is_valid():
-			serializer.save()
-			
-			return Response({'status':'Estado Registrado'})
-		else:
-			return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+    @action(detail=True, methods=['post'])
+    def postEstado(self, request):
 
-	@action(detail=True, methods=['get'])
-	def getEstado(self, request,idestado=None):
-		if idestado == None:
-			queryset = Estado.objects.all()
-			serializer = EstadoSerializer(queryset, many=True)
-			return Response(serializer.data)
-		else:	
-			queryset = Estado.objects.all()
-			estado = get_object_or_404(queryset, pk=idestado)
-			serializer = EstadoSerializer(estado)
-			return Response(serializer.data)
+        serializer = EstadoSerializer(data=request.data)
 
-	@action(detail=True, methods=['put'])
-	def putEstado(self, request):
-		
-		estado = self.get_object(request.data["estado_codigo"])
-		serializer = EstadoSerializer(estado, data=request.data)
-		if serializer.is_valid():
-			serializer.save()
-			return Response(serializer.data)
-		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)		
-	
-	def get_object(self, estado_codigo):
-		try:
-			return Estado.objects.get(estado_codigo=estado_codigo)
-		except Estado.DoesNotExist:
-			raise Http404		
+        if serializer.is_valid():
+            serializer.save()
+
+            return Response({'status': 'Estado Registrado'})
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=True, methods=['get'])
+    def getEstado(self, request, idestado=None):
+        if idestado == None:
+            queryset = Estado.objects.all()
+            serializer = EstadoSerializer(queryset, many=True)
+            return Response(serializer.data)
+        else:
+            queryset = Estado.objects.all()
+            estado = get_object_or_404(queryset, pk=idestado)
+            serializer = EstadoSerializer(estado)
+            return Response(serializer.data)
+
+    @action(detail=True, methods=['put'])
+    def putEstado(self, request):
+
+        estado = self.get_object(request.data["estado_codigo"])
+        serializer = EstadoSerializer(estado, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def get_object(self, estado_codigo):
+        try:
+            return Estado.objects.get(estado_codigo=estado_codigo)
+        except Estado.DoesNotExist:
+            raise Http404
+
 
 class PersonaController(viewsets.ModelViewSet):
-	queryset = Persona.objects.all()
-	serializer_class = PostPersonaSerializer
+    queryset = Persona.objects.all()
+    serializer_class = PostPersonaSerializer
 
-	
-	@action(detail=True, methods=['post'])
-	def postPersona(self, request):
-		
-		serializer=PersonaSerializer(data=request.data)
-		
-		if serializer.is_valid():
-			serializer.save()
-			
-			return Response({'status':'Persona Registrado'})
-		else:
-			return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+    @action(detail=True, methods=['post'])
+    def postPersona(self, request):
 
-	@action(detail=True, methods=['get'])
-	def getPersona(self, request,docpersona=None):
-		if docpersona == None:
-			queryset = Persona.objects.all()
-			serializer = PersonaSerializer(queryset, many=True)
-			return Response(serializer.data)
-		else:	
-			queryset = Persona.objects.all()
-			persona = get_object_or_404(queryset, persona_documento=docpersona)
-			serializer = PersonaSerializer(persona)
-			return Response(serializer.data)	
+        serializer = PersonaSerializer(data=request.data)
 
-	@action(detail=True, methods=['put'])
-	def putPersona(self, request):
-		
-		persona = self.get_object(request.data["persona_codigo"])
-		serializer = PersonaSerializer(persona, data=request.data)
-		if serializer.is_valid():
-			serializer.save()
-			return Response(serializer.data)
-		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)		
-	
-	def get_object(self, persona_codigo):
-		try:
-			return Persona.objects.get(persona_codigo=persona_codigo)
-		except Persona.DoesNotExist:
-			raise Http404
+        if serializer.is_valid():
+            serializer.save()
+
+            return Response({'status': 'Persona Registrado'})
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=True, methods=['get'])
+    def getPersona(self, request, docpersona=None):
+        if docpersona == None:
+            queryset = Persona.objects.all()
+            serializer = PersonaSerializer(queryset, many=True)
+            return Response(serializer.data)
+        else:
+            queryset = Persona.objects.all()
+            persona = get_object_or_404(queryset, persona_documento=docpersona)
+            serializer = PersonaSerializer(persona)
+            return Response(serializer.data)
+
+    @action(detail=True, methods=['put'])
+    def putPersona(self, request):
+
+        persona = self.get_object(request.data["persona_codigo"])
+        serializer = PersonaSerializer(persona, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def get_object(self, persona_codigo):
+        try:
+            return Persona.objects.get(persona_codigo=persona_codigo)
+        except Persona.DoesNotExist:
+            raise Http404
+
 
 class PublicidadController(viewsets.ModelViewSet):
-    
-	queryset = Publicidad.objects.all()
-	serializer_class = PostPublicidadSerializer
 
-	@action(detail=True, methods=['post'])
-	def postPublicidad(self, request):
-		content=self.request.FILES.get('file_uploaded')
-		default_storage.save(django_settings.STATIC_ROOT+'/'+content.name, ContentFile(content.read()))
-		dataPublicidad={}
-		if 'video' in content.content_type:
-			dataPublicidad['publicidad_tipo']='VIDEO'
-		elif 'audio' in content.content_type:
-			dataPublicidad['publicidad_tipo']='AUDIO'
-		elif 'image' in content.content_type:
-			dataPublicidad['publicidad_tipo']='IMAGEN'
-		else:
-			return Response("Tipo de archivo no permitido -->"+content.content_type+"<--",status=status.HTTP_400_BAD_REQUEST)
-		
+    queryset = Publicidad.objects.all()
+    serializer_class = PostPublicidadSerializer
 
-		dataPublicidad['publicidad_ruta']=content.name
-		
-		serializer=PublicidadSerializer(data=dataPublicidad)
-		
-		if serializer.is_valid():
-			serializer.save()
-			
-			return Response({'status':'Publicidad Registrada'})
-		else:
-			return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+    @action(detail=True, methods=['post'])
+    def postPublicidad(self, request):
+        content = self.request.FILES.get('file_uploaded')
+        default_storage.save(django_settings.STATIC_ROOT +
+                             '/'+content.name, ContentFile(content.read()))
+        dataPublicidad = {}
+        if 'video' in content.content_type:
+            dataPublicidad['publicidad_tipo'] = 'VIDEO'
+        elif 'audio' in content.content_type:
+            dataPublicidad['publicidad_tipo'] = 'AUDIO'
+        elif 'image' in content.content_type:
+            dataPublicidad['publicidad_tipo'] = 'IMAGEN'
+        else:
+            return Response("Tipo de archivo no permitido -->"+content.content_type+"<--", status=status.HTTP_400_BAD_REQUEST)
 
-	@action(detail=True, methods=['get'])
-	def getPublicidad(self, request,idpublicidad=None):
-		if idpublicidad == None:
-			queryset = Publicidad.objects.all()
-			serializer = PublicidadSerializer(queryset, many=True)
-			return Response(serializer.data)
-		else:	
-			queryset = Publicidad.objects.all()
-			persona = get_object_or_404(queryset, pk=idpublicidad)
-			serializer = PublicidadSerializer(persona)
-			return Response(serializer.data)		
+        dataPublicidad['publicidad_ruta'] = content.name
 
-	@action(detail=True, methods=['put'])
-	def putPublicidad(self, request):
-		
-		publicidad = self.get_object(request.data["publicidad_codigo"])
-		serializer = PublicidadSerializer(publicidad, data=request.data)
-		if serializer.is_valid():
-			serializer.save()
-			return Response(serializer.data)
-		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)		
-	
-	def get_object(self, publicidad_codigo):
-		try:
-			return Publicidad.objects.get(publicidad_codigo=publicidad_codigo)
-		except Publicidad.DoesNotExist:
-			raise Http404
+        serializer = PublicidadSerializer(data=dataPublicidad)
+
+        if serializer.is_valid():
+            serializer.save()
+
+            return Response({'status': 'Publicidad Registrada'})
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=True, methods=['get'])
+    def getPublicidad(self, request, idpublicidad=None):
+        if idpublicidad == None:
+            queryset = Publicidad.objects.all()
+            serializer = PublicidadSerializer(queryset, many=True)
+            return Response(serializer.data)
+        else:
+            queryset = Publicidad.objects.all()
+            persona = get_object_or_404(queryset, pk=idpublicidad)
+            serializer = PublicidadSerializer(persona)
+            return Response(serializer.data)
+
+    @action(detail=True, methods=['put'])
+    def putPublicidad(self, request):
+
+        publicidad = self.get_object(request.data["publicidad_codigo"])
+        serializer = PublicidadSerializer(publicidad, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def get_object(self, publicidad_codigo):
+        try:
+            return Publicidad.objects.get(publicidad_codigo=publicidad_codigo)
+        except Publicidad.DoesNotExist:
+            raise Http404
+
 
 class ProgramaPublicidadController(viewsets.ModelViewSet):
-    
-	queryset = ProgramaPublicidad.objects.all()
-	serializer_class = PostProgramaPublicidadSerializer
 
-	@action(detail=True, methods=['post'])
-	def postProgramaPublicidad(self, request):
-		
-		
-		serializer=ProgramaPublicidadSerializer(data=request.data)
-		
-		if serializer.is_valid():
-			serializer.save()
-			
-			return Response({'status':'Programa Publicidad Registrada'})
-		else:
-			return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+    queryset = ProgramaPublicidad.objects.all()
+    serializer_class = PostProgramaPublicidadSerializer
 
-	@action(detail=True, methods=['get'])
-	def getProgramaPublicidad(self, request,idppublicidad=None):
-		if idppublicidad == None:
-			queryset = ProgramaPublicidad.objects.all()
-			serializer = ProgramaPublicidadSerializer(queryset, many=True)
-			return Response(serializer.data)
-		else:	
-			queryset = ProgramaPublicidad.objects.all()
-			programa = get_object_or_404(queryset, pk=idppublicidad)
-			serializer = ProgramaPublicidadSerializer(programa)
-			return Response(serializer.data)		
+    @action(detail=True, methods=['post'])
+    def postProgramaPublicidad(self, request):
 
-	@action(detail=True, methods=['put'])
-	def putProgramaPublicidad(self, request):
-		
-		ppublicidad = self.get_object(request.data["ppublicidad_codigo"])
-		serializer = ProgramaPublicidadSerializer(ppublicidad, data=request.data)
-		if serializer.is_valid():
-			serializer.save()
-			return Response(serializer.data)
-		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)		
-	
-	def get_object(self, ppublicidad_codigo):
-		try:
-			return ProgramaPublicidad.objects.get(ppublicidad_codigo=ppublicidad_codigo)
-		except ProgramaPublicidad.DoesNotExist:
-			raise Http404
+        serializer = ProgramaPublicidadSerializer(data=request.data)
+
+        if serializer.is_valid():
+            serializer.save()
+
+            return Response({'status': 'Programa Publicidad Registrada'})
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=True, methods=['get'])
+    def getProgramaPublicidad(self, request, idppublicidad=None):
+        if idppublicidad == None:
+            queryset = ProgramaPublicidad.objects.all()
+            serializer = ProgramaPublicidadSerializer(queryset, many=True)
+            return Response(serializer.data)
+        else:
+            queryset = ProgramaPublicidad.objects.all()
+            programa = get_object_or_404(queryset, pk=idppublicidad)
+            serializer = ProgramaPublicidadSerializer(programa)
+            return Response(serializer.data)
+
+    @action(detail=True, methods=['put'])
+    def putProgramaPublicidad(self, request):
+
+        ppublicidad = self.get_object(request.data["ppublicidad_codigo"])
+        serializer = ProgramaPublicidadSerializer(
+            ppublicidad, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def get_object(self, ppublicidad_codigo):
+        try:
+            return ProgramaPublicidad.objects.get(ppublicidad_codigo=ppublicidad_codigo)
+        except ProgramaPublicidad.DoesNotExist:
+            raise Http404
+
 
 def dictfetchall(cursor):
     "Return all rows from a cursor as a dict"
@@ -760,13 +787,13 @@ def dictfetchall(cursor):
         dict(zip(columns, row))
         for row in cursor.fetchall()
     ]
-    
+
+
 def tts(texto, language, archivo):
     '''if os.path.exists(archivo):
         print ("File exist")
     else:
         print ("File not exist")'''
-    tts = gTTS(text=texto, lang=language, slow=False) 
+    tts = gTTS(text=texto, lang=language, slow=False)
     # Guardamos el archivo de Audio
     tts.save(archivo)
-

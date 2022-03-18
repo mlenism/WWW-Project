@@ -210,6 +210,7 @@ export default function User() {
                   label="Nombre de usuario"
                   fullWidth
                   variant="standard"
+                  onChange={handleChange}
                 />
                 <TextField
                   autoFocus
@@ -218,6 +219,7 @@ export default function User() {
                   label="Nombre"
                   fullWidth
                   variant="standard"
+                  onChange={handleChange}
                 />
                 <TextField
                   autoFocus
@@ -226,6 +228,7 @@ export default function User() {
                   label="Apellido"
                   fullWidth
                   variant="standard"
+                  onChange={handleChange}
                 />
                 <TextField
                   autoFocus
@@ -234,6 +237,17 @@ export default function User() {
                   label="Email"
                   fullWidth
                   variant="standard"
+                  onChange={handleChange}
+                />
+                <TextField
+                  autoFocus
+                  margin="dense"
+                  id="password"
+                  label="Password"
+                  type="password"
+                  fullWidth
+                  variant="standard"
+                  onChange={handleChange}
                 />
                 <FormControl fullWidth>
                   <InputLabel id="demo-simple-select-label" variant="standard">

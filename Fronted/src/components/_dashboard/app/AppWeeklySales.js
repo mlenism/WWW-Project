@@ -1,12 +1,12 @@
 import { Icon } from '@iconify/react';
+
 import androidFilled from '@iconify/icons-ant-design/android-filled';
 // material
 import { alpha, styled } from '@mui/material/styles';
 import { Card, Typography } from '@mui/material';
 // utils
 import { fShortenNumber } from '../../../utils/formatNumber';
-
-import { stats } from '../../../pages/DashboardApp';
+import { data } from '../../../pages/DashboardApp';
 // ----------------------------------------------------------------------
 
 const RootStyle = styled(Card)(({ theme }) => ({
@@ -36,14 +36,20 @@ const IconWrapperStyle = styled('div')(({ theme }) => ({
 // ----------------------------------------------------------------------
 
 export default function AppWeeklySales() {
-  console.log(stats, 'sssss');
-  console.log(stats.stat, 'sssss');
+  const error = () => {
+    try {
+      return data.stat.data[0].VIP;
+    } catch (e) {
+      return 1;
+    }
+  };
+
   return (
     <RootStyle>
       <IconWrapperStyle>
         <Icon icon={androidFilled} width={24} height={24} />
       </IconWrapperStyle>
-      <Typography variant="h3">stats.stat</Typography>
+      <Typography variant="h3">{error()}</Typography>
       <Typography variant="subtitle2" sx={{ opacity: 0.72 }}>
         VIP
       </Typography>

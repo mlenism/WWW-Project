@@ -17,16 +17,15 @@ import {
   AppCurrentSubject,
   AppConversionRates
 } from '../components/_dashboard/app';
-
 import { getEstadisticas } from '../apicore';
 // ----------------------------------------------------------------------
-const stats = {};
+const data = {};
 
 export default function DashboardApp() {
   useEffect(() => {
     const estadisticas = async () => {
       const response = await getEstadisticas();
-      if (response !== undefined) stats.stat = response;
+      data.stat = response;
       return response;
     };
     estadisticas();
@@ -88,4 +87,4 @@ export default function DashboardApp() {
     </Page>
   );
 }
-export { stats };
+export { data };
