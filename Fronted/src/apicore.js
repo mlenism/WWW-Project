@@ -112,6 +112,7 @@ export const saltarTurno = (data) =>
     .catch((err) => {
       console.log(err);
       return err.response;
+    });
 
 export const addPersona = (data) =>
   axios

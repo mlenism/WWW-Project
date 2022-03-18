@@ -12,7 +12,7 @@ import {
   Card,
   Table,
   Stack,
-  Avatar,
+  Box,
   Button,
   Checkbox,
   TableRow,
@@ -21,7 +21,10 @@ import {
   Container,
   Typography,
   TableContainer,
-  TablePagination
+  TablePagination,
+  Modal,
+  Grid,
+  TextField
 } from '@mui/material';
 // components
 import Page from '../components/Page';
@@ -29,7 +32,7 @@ import Label from '../components/Label';
 import Scrollbar from '../components/Scrollbar';
 import SearchNotFound from '../components/SearchNotFound';
 import { UserListHead, UserListToolbar, UserMoreMenu } from '../components/_dashboard/user';
-import { getUsuarios } from '../apicore';
+import { getUsuarios, addUsuario } from '../apicore';
 
 //  import USERLIST from '../_mocks_/user';
 
@@ -43,6 +46,18 @@ const TABLE_HEAD = [
   { id: 'status', label: 'estado', alignRight: false },
   { id: '' }
 ];
+
+const style = {
+  position: 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  width: 400,
+  bgcolor: 'background.paper',
+  border: '2px solid #000',
+  boxShadow: 24,
+  p: 4
+};
 
 // ----------------------------------------------------------------------
 
@@ -86,6 +101,9 @@ export default function User() {
   const [orderBy, setOrderBy] = useState('name');
   const [filterName, setFilterName] = useState('');
   const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [open, setOpen] = useState(false);
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
 
   useEffect(() => {
     const usuarios = async () => {
@@ -148,23 +166,73 @@ export default function User() {
 
   const isUserNotFound = filteredUsers.length === 0;
 
-  console.log(USERLIST);
+  const nuevoUsuario = async () => {
+    //  const response = await addUsuario({});
+    console.log('Formulario');
+  };
 
   return (
     <Page title="User | Minimal-UI">
       <Container>
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
           <Typography variant="h4" gutterBottom>
-            User
+            Usuarios
           </Typography>
-          <Button
-            variant="contained"
-            component={RouterLink}
-            to="#"
-            startIcon={<Icon icon={plusFill} />}
-          >
-            New User
+          <Button variant="contained" startIcon={<Icon icon={plusFill} />} onClick={handleOpen}>
+            Nuevo usuario
           </Button>
+          <Modal
+            open={open}
+            onClose={handleClose}
+            aria-labelledby="modal-modal-title"
+            aria-describedby="modal-modal-description"
+          >
+            <Grid sx={style}>
+              <Typography id="modal-modal-title" variant="h6" component="h2">
+                Crear usuario
+              </Typography>
+              <TextField
+                autoFocus
+                margin="dense"
+                id="username"
+                label="Nombre de usuario"
+                fullWidth
+                variant="standard"
+              />
+              <TextField
+                autoFocus
+                margin="dense"
+                id="first_name"
+                label="Nombre"
+                fullWidth
+                variant="standard"
+              />
+              <TextField
+                autoFocus
+                margin="dense"
+                id="last_name"
+                label="Apellido"
+                fullWidth
+                variant="standard"
+              />
+              <TextField
+                autoFocus
+                margin="dense"
+                id="email"
+                label="Email"
+                fullWidth
+                variant="standard"
+              />
+              <TextField
+                autoFocus
+                margin="dense"
+                id="rol"
+                label="Rol"
+                fullWidth
+                variant="standard"
+              />
+            </Grid>
+          </Modal>
         </Stack>
 
         <Card>
@@ -192,7 +260,7 @@ export default function User() {
                     .map((row) => {
                       const { id, username, rol, email } = row;
                       const sede = row.sede_nombre;
-                      const status = row.is_active;
+                      const status = 'row.is_active';
                       const isItemSelected = selected.indexOf(username) !== -1;
 
                       return (
@@ -219,7 +287,7 @@ export default function User() {
                           </TableCell>
                           <TableCell align="left">{sede}</TableCell>
                           <TableCell align="left">
-                            {row.is_superuser ? 'Admin' : row.is_staff ? 'Empleado' : 'Cliente'}
+                            {row.is_superuser ? 'Admin' : row.is_staff ? 'Empleado' : 'Pantalla'}
                           </TableCell>
                           <TableCell align="left">{email}</TableCell>
                           <TableCell align="left">

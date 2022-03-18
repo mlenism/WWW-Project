@@ -77,10 +77,7 @@ const TABLE_HEAD = [
 
 function Turnos() {
   const [USERLIST, setUSERLIST] = useState([{ turno_codigo: 0 }]);
-  const [nuevoTurno, setNuevoTurno] = useState({
-    codigoTurno: 't28',
-    servicio: 'servicio3'
-  });
+  const [nuevoTurno, setNuevoTurno] = useState('0');
   const [page, setPage] = useState(0);
   const [openModal, setOpenModal] = useState(false);
   const modalHandler = () => setOpenModal(true);
@@ -117,7 +114,26 @@ function Turnos() {
         console.log(res);
       }
     };
+
+    const getNuevoTurno = async () => {
+      const aux1 = localStorage.getItem('nuevoTurno');
+      if (nuevoTurno !== aux1) {
+        setNuevoTurno(aux1);
+
+        USERLIST.unshift(nuevoTurno);
+        const aux = USERLIST.slice(0, 10);
+        setUSERLIST(aux);
+        modalHandler();
+        console.log(aux);
+        timer = setTimeout(closeModal, 1000);
+      }
+    };
     obtenerTurnos();
+    // getNuevoTurno();
+    const interval = setInterval(() => getNuevoTurno(), 5000);
+    return () => {
+      clearInterval(interval);
+    };
   }, [USERLIST]);
 
   const RootStyle = styled(Page)(({ theme }) => ({
@@ -192,7 +208,7 @@ function Turnos() {
               Siguiente Turno
             </Typography>
             <Typography align="center" id="modal-modal-title" variant="h2" sx={{ mt: 2 }}>
-              {nuevoTurno.codigoTurno}
+              {nuevoTurno}
             </Typography>
           </Box>
         </Modal>

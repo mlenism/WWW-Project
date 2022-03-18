@@ -8,7 +8,6 @@ import TextField from '@mui/material/TextField';
 import Stack from '@mui/material/Stack';
 import Grid from '@mui/material/Grid';
 import BackspaceIcon from '@mui/icons-material/Backspace';
-import LoadingButton from '@mui/lab/LoadingButton';
 // components
 import { MotionContainer, varBounceIn } from '../components/animate';
 import Page from '../components/Page';
@@ -29,7 +28,6 @@ const turno = {};
 
 export default function Cedula() {
   const [texto, setTexto] = React.useState('');
-  const [user, setUser] = React.useState('');
 
   const navigate = useNavigate();
 
