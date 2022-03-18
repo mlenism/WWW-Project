@@ -75,3 +75,41 @@ export const addTurno = (data) =>
       console.log(err);
       return err.response;
     });
+
+export const asignarTurno = (data) =>
+  axios
+    .get(`${process.env.REACT_APP_API_URL}/turno/${data}`)
+    .then((res) => res.data)
+    .catch((err) => {
+      console.log(data);
+      console.log(err);
+      return err.response;
+    });
+
+export const getCajas = () =>
+  axios
+    .get(`${process.env.REACT_APP_API_URL}/caja`)
+    .then((res) => res.data)
+    .catch((err) => {
+      console.log(err);
+    });
+
+export const confirmarTurno = (data) =>
+  axios
+    .post(`${process.env.REACT_APP_API_URL}/confirmarturno`, data)
+    .then((res) => res.data)
+    .catch((err) => {
+      console.log(data);
+
+      console.log(err);
+      return err.response;
+    });
+
+export const saltarTurno = (data) =>
+  axios
+    .post(`${process.env.REACT_APP_API_URL}/saltarturno`, data)
+    .then((res) => res.data)
+    .catch((err) => {
+      console.log(err);
+      return err.response;
+    });

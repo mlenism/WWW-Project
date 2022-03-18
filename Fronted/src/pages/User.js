@@ -148,6 +148,8 @@ export default function User() {
 
   const isUserNotFound = filteredUsers.length === 0;
 
+  console.log(USERLIST);
+
   return (
     <Page title="User | Minimal-UI">
       <Container>

@@ -15,6 +15,7 @@ import Cedula from './pages/Cedula';
 import Turnos from './pages/Turnos';
 import Confirmado from './pages/Confirmado';
 import Publicidad from './pages/Publicidad';
+import Caja from './pages/Caja';
 // ----------------------------------------------------------------------
 
 export default function Router() {
@@ -38,6 +39,7 @@ export default function Router() {
         { path: 'login', element: <Login /> },
         { path: 'register', element: <Register /> },
         { path: '404', element: <NotFound /> },
+        { path: 'caja', element: <Caja /> },
         { path: 'solicitud', element: <Solicitud /> },
         { path: 'cedula', element: <Cedula /> },
         { path: 'confirmado', element: <Confirmado /> },
