@@ -18,8 +18,6 @@ class UsuarioSerializer(serializers.ModelSerializer):
             'is_superuser','is_staff','sede_nombre','password']
 
     def validate(self,data):
-        print(self)
-        print(data)
         return data
 
     def create(self, validated_data):
@@ -29,10 +27,17 @@ class UsuarioSerializer(serializers.ModelSerializer):
         return usuario.__dict__
 
     def update(self, instance, validated_data):
-        usuario: Usuario = super().update(instance, validated_data)
-        usuario.set_password(validated_data['password'])
-        usuario.save()
-        return usuario.__dict__
+        instance.username = validated_data.get('username',instance.username)
+        instance.first_name = validated_data.get('first_name',instance.first_name)
+        instance.last_name = validated_data.get('last_name',instance.last_name)
+        instance.email = validated_data.get('email',instance.email)
+        instance.is_superuser = validated_data.get('is_superuser',instance.is_superuser)
+        instance.is_staff = validated_data.get('is_staff',instance.is_staff)
+        instance.sede_codigo = validated_data.get('sede_nombre',instance.sede_codigo)
+        if validated_data['password'] != '1d92a292f49bb163690439bdab37d979e1bc244d':
+            instance.set_password(validated_data['password'])
+        instance.save()
+        return instance.__dict__
 
     def to_representation(self, instance):
         if isinstance(instance, dict):
