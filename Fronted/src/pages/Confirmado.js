@@ -6,6 +6,7 @@ import { Box, Button, Typography, Container } from '@mui/material';
 // components
 import { MotionContainer, varBounceIn } from '../components/animate';
 import Page from '../components/Page';
+import { turno } from './Cedula';
 
 // ----------------------------------------------------------------------
 
@@ -29,11 +30,9 @@ export default function Confirmado() {
               <Typography variant="h3" paragraph>
                 Su turno es:
               </Typography>
-              <Box
-                component="img"
-                src="/static/illustrations/illustration_404.svg"
-                sx={{ height: 260, mx: 'auto', my: { xs: 5, sm: 10 } }}
-              />
+              <Typography variant="h1" paragraph color="blue">
+                {turno.turno.status.split(' ')[2]}
+              </Typography>
             </motion.div>
 
             <Button to="/solicitud" size="large" variant="contained" component={RouterLink}>

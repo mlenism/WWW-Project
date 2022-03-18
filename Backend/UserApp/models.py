@@ -89,13 +89,33 @@ class Servicio(models.Model):
         f"servicio_cosecutivoactual: {self.servicio_consecutivoactual}")
         return str
 
+class Usuario(AbstractUser):
+    username = models.CharField(max_length = 150, unique = True)
+    email = models.EmailField(max_length = 150, unique = True)
+    first_name = models.CharField(max_length = 150)
+    last_name = models.CharField(max_length = 150)
+    sede_codigo = models.ForeignKey(Sede, models.DO_NOTHING, null=True)
+
+    REQUIRED_FIELDS = ['email','first_name','last_name']
+
+    def __str__(self):
+        str = ("USUARIO\n"
+        f"username: {self.username}\n"
+        f"email: {self.email}\n"
+        f"first_name: {self.first_name}\n"
+        f"last_name: {self.last_name}\n"
+        f"is_active: {self.is_active}\n"
+        f"is_staff: {self.is_staff}\n"
+        f"is_active: {self.is_active}\n"
+        f"sede_codigo: {self.sede_codigo}")
+        return str
 
 class Caja(models.Model):
     caja_codigo = models.BigAutoField(primary_key=True)
     caja_nombre = models.CharField(unique=True, max_length=50)
     servicio_codigo = models.ForeignKey(Servicio, models.DO_NOTHING, null=True)
     sede_codigo = models.ForeignKey(Sede, models.DO_NOTHING, null=True)
-
+    usuario_codigo = models.ForeignKey(Usuario, models.DO_NOTHING, null=True, unique=True)
     REQUIRED_FIELDS = ['caja_codigo','caja_nombre','servicio_codigo','sede_codigo']
 
     def __str__(self):
@@ -136,26 +156,7 @@ class Turno(models.Model):
 		return str
 
 
-class Usuario(AbstractUser):
-    username = models.CharField(max_length = 150, unique = True)
-    email = models.EmailField(max_length = 150, unique = True)
-    first_name = models.CharField(max_length = 150)
-    last_name = models.CharField(max_length = 150)
-    sede_codigo = models.ForeignKey(Sede, models.DO_NOTHING, null=True)
 
-    REQUIRED_FIELDS = ['email','first_name','last_name']
-
-    def __str__(self):
-        str = ("USUARIO\n"
-        f"username: {self.username}\n"
-        f"email: {self.email}\n"
-        f"first_name: {self.first_name}\n"
-        f"last_name: {self.last_name}\n"
-        f"is_active: {self.is_active}\n"
-        f"is_staff: {self.is_staff}\n"
-        f"is_active: {self.is_active}\n"
-        f"sede_codigo: {self.sede_codigo}")
-        return str
 
 class VwTurno(models.Model):
     turno_codigo   = models.BigIntegerField(primary_key=True,verbose_name="Codigo de turno")

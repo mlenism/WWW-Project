@@ -26,35 +26,16 @@ const sidebarConfig =
           path: '/dashboard/user',
           icon: getIcon(peopleFill)
         },
-        {
-          title: 'product',
-          path: '/dashboard/products',
-          icon: getIcon(shoppingBagFill)
-        },
+
         {
           title: 'publicidad',
           path: '/dashboard/publicidad',
           icon: getIcon('mdi:advertisements')
         },
         {
-          title: 'blog',
-          path: '/dashboard/blog',
-          icon: getIcon(fileTextFill)
-        },
-        {
-          title: 'login',
-          path: '/login',
-          icon: getIcon(lockFill)
-        },
-        {
           title: 'register',
           path: '/register',
           icon: getIcon(personAddFill)
-        },
-        {
-          title: 'Not found',
-          path: '/404',
-          icon: getIcon(alertTriangleFill)
         }
       ]
     : [
@@ -67,11 +48,6 @@ const sidebarConfig =
           title: 'product',
           path: '/dashboard/products',
           icon: getIcon(shoppingBagFill)
-        },
-        {
-          title: 'blog',
-          path: '/dashboard/blog',
-          icon: getIcon(fileTextFill)
         }
       ];
 

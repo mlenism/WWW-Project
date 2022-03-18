@@ -1,41 +1,44 @@
 import { motion } from 'framer-motion';
-import { Link as RouterLink } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import React, { useState } from 'react';
 // material
 import { styled } from '@mui/material/styles';
 import { Box, Button, Typography, Container } from '@mui/material';
 import ButtonBase from '@mui/material/ButtonBase';
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
-// components
-import { MotionContainer, varBounceIn } from '../components/animate';
-import Page from '../components/Page';
 
 // ----------------------------------------------------------------------
 const images = [
   {
     url: '/static/mock-images/avatars/avatar_20.jpg',
-    title: 'Servicio general G',
-    width: '30%'
+    title: 'General',
+    width: '30%',
+    value: 1
   },
   {
     url: '/static/mock-images/avatars/avatar_21.jpg',
-    title: 'Servicio IE',
-    width: '30%'
+    title: 'Importaciones y exportaciones',
+    width: '30%',
+    value: 2
   },
   {
     url: '/static/mock-images/avatars/avatar_22.jpg',
-    title: 'Servicio S',
-    width: '30%'
+    title: 'Seguros',
+    width: '30%',
+    value: 3
   },
   {
     url: '/static/mock-images/avatars/avatar_23.jpg',
-    title: 'Servicio D',
-    width: '30%'
+    title: 'Transacciones',
+    width: '30%',
+    value: 4
   },
   {
     url: '/static/mock-images/avatars/avatar_24.jpg',
     title: 'Servicio VIP',
-    width: '30%'
+    width: '30%',
+    value: 5
   }
 ];
 
@@ -102,8 +105,17 @@ const ImageMarked = styled('span')(({ theme }) => ({
   transition: theme.transitions.create('opacity')
 }));
 
+const servicio = {};
+
 // ----------------------------------------------------------------------
 export default function Solicitud() {
+  const navigate = useNavigate();
+
+  const onClickAction = (data) => {
+    servicio.servicio = data;
+    navigate('/cedula');
+  };
+
   return (
     <Container>
       <AppBar position="relative">
@@ -113,7 +125,7 @@ export default function Solicitud() {
           </Typography>
         </Toolbar>
       </AppBar>
-      <Box sx={{ display: 'flex', flexWrap: 'wrap', minWidth: 300, width: '100%' }}>
+      <Box sx={{ display: 'flex', flexWrap: 'wrap', minWidth: 300, width: '111.1%' }}>
         {images.map((image) => (
           <ImageButton
             focusRipple
@@ -121,8 +133,7 @@ export default function Solicitud() {
             style={{
               width: image.width
             }}
-            component={RouterLink}
-            to="/cedula"
+            onClick={() => onClickAction(image.value)}
           >
             <ImageSrc style={{ backgroundImage: `url(${image.url})` }} />
             <ImageBackdrop className="MuiImageBackdrop-root" />
@@ -148,3 +159,4 @@ export default function Solicitud() {
     </Container>
   );
 }
+export { servicio };

@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Link as RouterLink } from 'react-router-dom';
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import * as React from 'react';
 // material
 import { styled } from '@mui/material/styles';
@@ -12,6 +12,8 @@ import LoadingButton from '@mui/lab/LoadingButton';
 // components
 import { MotionContainer, varBounceIn } from '../components/animate';
 import Page from '../components/Page';
+import { servicio } from './Solicitud';
+import { addPersona, getPersona, addTurno } from '../apicore';
 
 // ----------------------------------------------------------------------
 const RootStyle = styled(Page)(({ theme }) => ({
@@ -22,10 +24,14 @@ const RootStyle = styled(Page)(({ theme }) => ({
   paddingBottom: theme.spacing(10)
 }));
 
+const turno = {};
 // ----------------------------------------------------------------------
 
 export default function Cedula() {
   const [texto, setTexto] = React.useState('');
+  const [user, setUser] = React.useState('');
+
+  const navigate = useNavigate();
 
   function LlenarCedula(numero) {
     setTexto(texto.concat(numero));
@@ -41,6 +47,24 @@ export default function Cedula() {
     }
     return true;
   }
+
+  const createTurn = async () => {
+    const responseAddUser = await addPersona({
+      persona_nombre: texto,
+      persona_documento: texto
+    });
+
+    const responseGetUser = await getPersona(texto);
+
+    const responseAddTurn = await addTurno({
+      servicio_codigo: servicio.servicio,
+      persona_codigo: responseGetUser.persona_codigo
+    });
+
+    turno.turno = responseAddTurn;
+
+    navigate('/confirmado');
+  };
 
   return (
     <RootStyle title="404 Page Not Found | Minimal-UI">
@@ -96,7 +120,7 @@ export default function Cedula() {
                 <Button
                   size="large"
                   variant="outlined"
-                  Width="50"
+                  width="50"
                   onClick={() => LlenarCedula('0')}
                 >
                   0
@@ -117,10 +141,9 @@ export default function Cedula() {
                 Atras
               </Button>
               <Button
-                to="/confirmado"
                 size="large"
                 variant="contained"
-                component={RouterLink}
+                onClick={() => createTurn()}
                 disabled={CampoLLeno()}
               >
                 Siguiente
@@ -132,3 +155,4 @@ export default function Cedula() {
     </RootStyle>
   );
 }
+export { turno };
