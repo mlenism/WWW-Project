@@ -73,6 +73,9 @@ class UsuarioApi(APIView):
 
 	def put(self, request, username, format=None):
 		usuario = self.get_object(username)
+		passw = 'password' in request.data
+		if not passw:
+			request.data['password'] = '1d92a292f49bb163690439bdab37d979e1bc244d'
 		serializer = UsuarioSerializer(usuario, data=request.data)
 		if serializer.is_valid():
 			serializer.save()
@@ -169,7 +172,6 @@ class Estadisticas(APIView):
 		chart_data = [fechas_data, general_data, imp_data, trans_data, vip_data, seguros_data]
 		data_to_send = [turnos_servicio_x_dia,chart_data]
 
-		print(data_to_send)
 		return Response(data_to_send,status=status.HTTP_200_OK)
 
 
