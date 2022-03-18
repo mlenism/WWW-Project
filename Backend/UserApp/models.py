@@ -115,7 +115,7 @@ class Caja(models.Model):
     caja_nombre = models.CharField(unique=True, max_length=50)
     servicio_codigo = models.ForeignKey(Servicio, models.DO_NOTHING, null=True)
     sede_codigo = models.ForeignKey(Sede, models.DO_NOTHING, null=True)
-    usuario_codigo = models.ForeignKey(Usuario, models.DO_NOTHING, null=True, unique=True)
+    username = models.CharField(null=True, unique=True,  max_length=50 )
     REQUIRED_FIELDS = ['caja_codigo','caja_nombre','servicio_codigo','sede_codigo']
 
     def __str__(self):

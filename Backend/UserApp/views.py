@@ -205,17 +205,18 @@ class TurnoController(viewsets.ModelViewSet):
 			obj_caja   = Caja.objects.get(caja_codigo=idcaja)
 		
 
-			try:
-				obj_turno=Turno.objects.get(estado_codigo=4,caja_codigo_id=idcaja)
+			
+			registros=Turno.objects.filter(estado_codigo=4,caja_codigo_id=idcaja).count()
 				
-				queryset = VwTurno.objects.filter(turno_codigo=obj_turno.turno_codigo)
+			if registros>0 :
+				queryset = VwTurno.objects.filter(estado_codigo=4).filter(caja_codigo=idcaja)[:1]
 				consecutivo = queryset[0].consecutivo
-				queryset[0].rutaaudio=django_settings.STATIC_ROOT+'/%s.mp3'%consecutivo
+				
 				serializer = VwTurnoSerializer(queryset, many=True)
-				tts("Turno "+consecutivo+" Caja "+obj_caja.caja_nombre, 'es', django_settings.STATIC_ROOT+'/%s.mp3'%consecutivo) 
+				tts("Turno "+consecutivo+"  "+obj_caja.caja_nombre, 'es', django_settings.STATIC_ROOT+'/%s.mp3'%consecutivo) 
 				
 				return Response(serializer.data)
-			except Turno.DoesNotExist:
+			else :
 			
 				
 				count = VwTurno.objects.filter(servicio_codigo_id=obj_caja.servicio_codigo).filter(estado_codigo=1).count()
@@ -231,17 +232,15 @@ class TurnoController(viewsets.ModelViewSet):
 					else :
 						return Response('No existen Turnos Disponibles',status=status.HTTP_404_NOT_FOUND)				
 
+				Turno.objects.filter(turno_codigo=queryset[0].turno_codigo).update(estado_codigo=4,caja_codigo_id=idcaja)
 				
-				turno      =queryset[0].turno_codigo
-				obj_estado = Estado.objects.get(estado_codigo=4)
-				obj_turno  = Turno.objects.get(turno_codigo=turno)
-				obj_turno.estado_codigo=obj_estado
-				obj_turno.caja_codigo_id=idcaja
-				obj_turno.save()
+				
+				queryset = VwTurno.objects.filter(estado_codigo=4).filter(caja_codigo=idcaja)[:1]
 				consecutivo = queryset[0].consecutivo
-				queryset[0].rutaaudio=django_settings.STATIC_ROOT+'/%s.mp3'%consecutivo
+				
 				serializer = VwTurnoSerializer(queryset, many=True)
-				tts("Turno "+consecutivo+" Caja "+obj_caja.caja_nombre, 'es', django_settings.STATIC_ROOT+'/%s.mp3'%consecutivo) 
+				
+				tts("Turno "+consecutivo+"  "+obj_caja.caja_nombre, 'es', django_settings.STATIC_ROOT+'/%s.mp3'%consecutivo) 
 				return Response(serializer.data)
 
 		except Caja.DoesNotExist:
@@ -476,14 +475,15 @@ class CajaController(viewsets.ModelViewSet):
 			return Response(serializer.data)
 
 	@action(detail=True, methods=['get'])
-	def getCajaUsuario(self, request,idusuario):
+	def getCajaUsuario(self, request,username):
 		
-			try:
-				queryset = Caja.objects.get(usuario_codigo=idusuario)
+			
+			if Caja.objects.filter(username=username).count()>0 :
+				queryset = Caja.objects.filter(username=username)
 				serializer = CajaSerializer(queryset, many=True)
 				return Response(serializer.data)
-			except Caja.DoesNotExist:
-				queryset=Caja.objects.filter(usuario_codigo__isnull=True)			
+			else :
+				queryset=Caja.objects.filter(username__isnull=True)			
 				serializer = CajaSerializer(queryset,  many=True)
 				return Response(serializer.data)
 	
