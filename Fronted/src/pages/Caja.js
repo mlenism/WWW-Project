@@ -93,7 +93,11 @@ function Caja() {
     const obtenerPrimerTurno = async () => {
       const response = await asignarTurno(caja);
       console.log(response[0]);
-      if (response[0].turno_codigo !== turnoInfo.turno_codigo) setTurnoInfo(response[0]);
+      if (response[0].turno_codigo !== turnoInfo.turno_codigo) {
+        setTurnoInfo(response[0]);
+        localStorage.setItem('nuevoTurno', response[0].consecutivo);
+      }
+      // localStorage.setItem('nuevoTurno', response[0].consecutivo);
     };
     const obtenerCajas = async () => {
       const response = await getCajas();
@@ -123,6 +127,7 @@ function Caja() {
     const response = await confirmarTurno({ turno_codigo: turnoInfo.turno_codigo });
     const response2 = await asignarTurno(caja);
     setTurnoInfo(response2[0]);
+    localStorage.setItem('nuevoTurno', response2[0].consecutivo);
     console.log(response);
   };
 

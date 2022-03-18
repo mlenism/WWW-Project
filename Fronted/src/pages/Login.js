@@ -88,12 +88,13 @@ export default function Login() {
     localStorage.setItem('name', `${user.ser.first_name} ${user.ser.last_name}`);
     localStorage.setItem('email', user.ser.email);
     localStorage.setItem('sede_nombre', 'user.ser.sede_nombre');
+    localStorage.setItem('nuevoTurno', '');
 
     if (Object.keys(user).length === 3) {
       if (user.ser.is_staff === true && user.ser.is_superuser === true) {
         navigate('/dashboard');
       } else if (user.ser.is_staff === true) {
-        navigate('/dashboard/products');
+        navigate('/caja');
       } else {
         navigate('/pantallas');
       }
