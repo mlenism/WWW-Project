@@ -95,7 +95,7 @@ export default function Login() {
       } else if (user.ser.is_staff === true) {
         navigate('/dashboard/products');
       } else {
-        navigate('/solicitud');
+        navigate('/pantallas');
       }
     } else {
       navigate('');
@@ -125,15 +125,15 @@ export default function Login() {
             <TextField
               fullWidth
               autoComplete="username"
-              type="email"
-              label="Email address"
+              type="username"
+              label="Nombre de usuario"
               onChange={onChangeUsername}
             />
 
             <TextField
               fullWidth
               autoComplete="current-password"
-              label="Password"
+              label="Contraseña"
               type={showPassword ? 'text' : 'password'}
               InputProps={{
                 endAdornment: (

@@ -125,7 +125,7 @@ export default function Solicitud() {
           </Typography>
         </Toolbar>
       </AppBar>
-      <Box sx={{ display: 'flex', flexWrap: 'wrap', minWidth: 300, width: '100%' }}>
+      <Box sx={{ display: 'flex', flexWrap: 'wrap', minWidth: 300, width: '111.1%' }}>
         {images.map((image) => (
           <ImageButton
             focusRipple

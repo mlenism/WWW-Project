@@ -15,6 +15,7 @@ import Cedula from './pages/Cedula';
 import Turnos from './pages/Turnos';
 import Confirmado from './pages/Confirmado';
 import Publicidad from './pages/Publicidad';
+import Pantallas from './pages/Pantallas';
 // ----------------------------------------------------------------------
 
 export default function Router() {
@@ -42,6 +43,7 @@ export default function Router() {
         { path: 'cedula', element: <Cedula /> },
         { path: 'confirmado', element: <Confirmado /> },
         { path: 'turnos', element: <Turnos /> },
+        { path: 'pantallas', element: <Pantallas /> },
         { path: '/', element: <Navigate to="/login" /> },
         { path: '*', element: <Navigate to="/404" /> }
       ]
