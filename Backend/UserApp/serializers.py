@@ -126,7 +126,7 @@ class PostCajaSerializer(serializers.ModelSerializer):
    
     class Meta:
         model = Caja
-        fields = ('caja_codigo','caja_nombre','servicio_codigo','sede_codigo','usuario_codigo')
+        fields = ('caja_codigo','caja_nombre','servicio_codigo','sede_codigo','username')
 
 class CajaSerializer(serializers.ModelSerializer):
 
