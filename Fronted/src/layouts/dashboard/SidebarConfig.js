@@ -31,11 +31,6 @@ const sidebarConfig =
           title: 'publicidad',
           path: '/dashboard/publicidad',
           icon: getIcon('mdi:advertisements')
-        },
-        {
-          title: 'register',
-          path: '/register',
-          icon: getIcon(personAddFill)
         }
       ]
     : [
