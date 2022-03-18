@@ -29,6 +29,7 @@ urlpatterns = [
     
     path('caja',CajaController.as_view({'post': 'postCaja' ,'get': 'getCaja' ,'put': 'putCaja'})),
     path('caja/<int:idcaja>/',CajaController.as_view({'get': 'getCaja'})),
+    path('cajausuario/<int:idusuario>/',CajaController.as_view({'get': 'getCajaUsuario'})),
 
     path('estado',EstadoController.as_view({'post': 'postEstado' ,'get': 'getEstado', 'put': 'putEstado'})),
     path('estado/<int:idestado>/',EstadoController.as_view({'get': 'getEstado'})),

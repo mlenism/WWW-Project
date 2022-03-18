@@ -475,6 +475,19 @@ class CajaController(viewsets.ModelViewSet):
 			serializer = CajaSerializer(caja)
 			return Response(serializer.data)
 
+	@action(detail=True, methods=['get'])
+	def getCajaUsuario(self, request,idusuario):
+		
+			try:
+				queryset = Caja.objects.get(usuario_codigo=idusuario)
+				serializer = CajaSerializer(queryset, many=True)
+				return Response(serializer.data)
+			except Caja.DoesNotExist:
+				queryset=Caja.objects.filter(usuario_codigo__isnull=True)			
+				serializer = CajaSerializer(queryset,  many=True)
+				return Response(serializer.data)
+	
+
 	@action(detail=True, methods=['put'])
 	def putCaja(self, request):
 		
