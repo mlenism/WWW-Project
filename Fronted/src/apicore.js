@@ -1,8 +1,10 @@
 import axios from 'axios';
 
+const API = 'https://bankticketmanagerb.herokuapp.com';
+
 export const addUsuario = (data) =>
   axios
-    .post(`${process.env.REACT_APP_API_URL}/usuarios`, data)
+    .post(`${API}/usuarios`, data)
     .then((res) => {
       console.log(data);
       console.log(res);
@@ -15,7 +17,7 @@ export const addUsuario = (data) =>
 
 export const addPublicidad = (data) =>
   axios
-    .post(`${process.env.REACT_APP_API_URL}/publicidad`, data)
+    .post(`${API}/publicidad`, data)
     .then((res) => {
       console.log(data);
       console.log(res);
@@ -28,7 +30,7 @@ export const addPublicidad = (data) =>
 
 export const getUsuario = (id) =>
   axios
-    .get(`${process.env.REACT_APP_API_URL}/usuarios/${id}`)
+    .get(`${API}/usuarios/${id}`)
     .then((res) => res.data)
     .catch((err) => {
       console.log(err);
@@ -36,7 +38,7 @@ export const getUsuario = (id) =>
 
 export const getUsuarios = () =>
   axios
-    .get(`${process.env.REACT_APP_API_URL}/usuarios`)
+    .get(`${API}/usuarios`)
     .then((res) => res.data)
     .catch((err) => {
       console.log(err);
@@ -44,7 +46,7 @@ export const getUsuarios = () =>
 
 export const login = (credentials) =>
   axios
-    .post(`${process.env.REACT_APP_API_URL}/login`, credentials)
+    .post(`${API}/login`, credentials)
     .then((res) => {
       console.log(credentials);
       console.log(res);
@@ -57,7 +59,7 @@ export const login = (credentials) =>
 
 export const getTurnos = () =>
   axios
-    .get(`${process.env.REACT_APP_API_URL}/turno`)
+    .get(`${API}/turno`)
     .then((res) => res.data)
     .catch((err) => {
       console.log(err);
@@ -65,7 +67,7 @@ export const getTurnos = () =>
 
 export const addTurno = (data) =>
   axios
-    .post(`${process.env.REACT_APP_API_URL}/turno`, data)
+    .post(`${API}/turno`, data)
     .then((res) => {
       console.log(data);
       console.log(res);
@@ -78,7 +80,7 @@ export const addTurno = (data) =>
 
 export const asignarTurno = (data) =>
   axios
-    .get(`${process.env.REACT_APP_API_URL}/turno/${data}`)
+    .get(`${API}/turno/${data}`)
     .then((res) => res.data)
     .catch((err) => {
       console.log(data);
@@ -88,7 +90,7 @@ export const asignarTurno = (data) =>
 
 export const getCajas = () =>
   axios
-    .get(`${process.env.REACT_APP_API_URL}/caja`)
+    .get(`${API}/caja`)
     .then((res) => res.data)
     .catch((err) => {
       console.log(err);
@@ -96,7 +98,7 @@ export const getCajas = () =>
 
 export const confirmarTurno = (data) =>
   axios
-    .post(`${process.env.REACT_APP_API_URL}/confirmarturno`, data)
+    .post(`${API}/confirmarturno`, data)
     .then((res) => res.data)
     .catch((err) => {
       console.log(data);
@@ -107,7 +109,7 @@ export const confirmarTurno = (data) =>
 
 export const saltarTurno = (data) =>
   axios
-    .post(`${process.env.REACT_APP_API_URL}/saltarturno`, data)
+    .post(`${API}/saltarturno`, data)
     .then((res) => res.data)
     .catch((err) => {
       console.log(err);
@@ -116,7 +118,7 @@ export const saltarTurno = (data) =>
 
 export const addPersona = (data) =>
   axios
-    .post(`${process.env.REACT_APP_API_URL}/persona`, data)
+    .post(`${API}/persona`, data)
     .then((res) => {
       console.log(data);
       console.log(res);
@@ -129,7 +131,7 @@ export const addPersona = (data) =>
 
 export const getPersona = (cc) =>
   axios
-    .get(`${process.env.REACT_APP_API_URL}/persona/${cc}`)
+    .get(`${API}/persona/${cc}`)
     .then((res) => res.data)
     .catch((err) => {
       console.log(err);
@@ -137,7 +139,7 @@ export const getPersona = (cc) =>
 
 export const getEstadisticas = () =>
   axios
-    .get(`${process.env.REACT_APP_API_URL}/estadisticas`)
+    .get(`${API}/estadisticas`)
     .then((res) => res.data)
     .catch((err) => {
       console.log(err);

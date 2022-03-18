@@ -126,7 +126,7 @@ function Turnos() {
       const aux1 = localStorage.getItem('nuevoTurno');
       if (nuevoTurno !== aux1) {
         setNuevoTurno(aux1);
-        setAudioTurno(<ReactHowler src={`http://127.0.0.1:8000/static/${aux1}.mp3`} />);
+        //  setAudioTurno(<ReactHowler src={`http://127.0.0.1:8000/static/${aux1}.mp3`} />);
         USERLIST.unshift(nuevoTurno);
         const aux = USERLIST.slice(0, 10);
         setUSERLIST(aux);
@@ -219,7 +219,7 @@ function Turnos() {
             </Typography>
           </Box>
         </Modal>
-        <ReactHowler src={`http://127.0.0.1:8000/static/${nuevoTurno}.mp3`} />
+
         <Card>
           <Scrollbar>
             <TableContainer sx={{ minWidth: 100 }}>

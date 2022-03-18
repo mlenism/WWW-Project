@@ -7,7 +7,7 @@ import { Card, CardHeader } from '@mui/material';
 import { fNumber } from '../../../utils/formatNumber';
 //
 import { BaseOptionChart } from '../../charts';
-
+import { data } from '../../../pages/DashboardApp';
 // ----------------------------------------------------------------------
 
 const CHART_HEIGHT = 372;
@@ -31,10 +31,46 @@ const ChartWrapperStyle = styled('div')(({ theme }) => ({
 
 // ----------------------------------------------------------------------
 
-const CHART_DATA = [5, 15, 30, 60];
-
 export default function AppCurrentVisits() {
   const theme = useTheme();
+
+  const errorVIP = () => {
+    try {
+      return data.stat.data[0].VIP;
+    } catch (e) {
+      return 20;
+    }
+  };
+  const errorT = () => {
+    try {
+      return data.stat.data[0]['TRANSACCION DOLARES'];
+    } catch (e) {
+      return 20;
+    }
+  };
+  const errorIE = () => {
+    try {
+      return data.stat.data[0]['IMPORTACION Y EXPORTACION'];
+    } catch (e) {
+      return 20;
+    }
+  };
+  const errorG = () => {
+    try {
+      return data.stat.data[0].GENERAL;
+    } catch (e) {
+      return 20;
+    }
+  };
+  const errorS = () => {
+    try {
+      return data.stat.data[0].SEGUROS;
+    } catch (e) {
+      return 20;
+    }
+  };
+
+  const CHART_DATA = [errorVIP(), errorT(), errorIE(), errorG(), errorS()];
 
   const chartOptions = merge(BaseOptionChart(), {
     colors: [
@@ -43,7 +79,7 @@ export default function AppCurrentVisits() {
       theme.palette.warning.main,
       theme.palette.error.main
     ],
-    labels: ['America', 'Asia', 'Europe', 'Africa'],
+    labels: ['VIP', 'TRANSACCION', 'IMPORTACION Y EXPORTACION', 'GENERAL', 'SEGUROS'],
     stroke: { colors: [theme.palette.background.paper] },
     legend: { floating: true, horizontalAlign: 'center' },
     dataLabels: { enabled: true, dropShadow: { enabled: false } },
@@ -63,7 +99,7 @@ export default function AppCurrentVisits() {
 
   return (
     <Card>
-      <CardHeader title="Current Visits" />
+      <CardHeader title="Porcentaje de servicios" />
       <ChartWrapperStyle dir="ltr">
         <ReactApexChart type="pie" series={CHART_DATA} options={chartOptions} height={280} />
       </ChartWrapperStyle>

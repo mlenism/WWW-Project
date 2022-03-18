@@ -4,7 +4,6 @@ import appleFilled from '@iconify/icons-ant-design/apple-filled';
 import { alpha, styled } from '@mui/material/styles';
 import { Card, Typography } from '@mui/material';
 // utils
-import { fShortenNumber } from '../../../utils/formatNumber';
 import { data } from '../../../pages/DashboardApp';
 // ----------------------------------------------------------------------
 
@@ -49,7 +48,7 @@ export default function AppNewUsers() {
       </IconWrapperStyle>
       <Typography variant="h3">{error()}</Typography>
       <Typography variant="subtitle2" sx={{ opacity: 0.72 }}>
-        New Users
+        Pedidas de servicio de importacion y exportacion
       </Typography>
     </RootStyle>
   );

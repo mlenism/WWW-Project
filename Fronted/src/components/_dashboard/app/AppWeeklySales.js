@@ -5,7 +5,6 @@ import androidFilled from '@iconify/icons-ant-design/android-filled';
 import { alpha, styled } from '@mui/material/styles';
 import { Card, Typography } from '@mui/material';
 // utils
-import { fShortenNumber } from '../../../utils/formatNumber';
 import { data } from '../../../pages/DashboardApp';
 // ----------------------------------------------------------------------
 
@@ -51,7 +50,7 @@ export default function AppWeeklySales() {
       </IconWrapperStyle>
       <Typography variant="h3">{error()}</Typography>
       <Typography variant="subtitle2" sx={{ opacity: 0.72 }}>
-        VIP
+        Pedidas de servicio de clientes VIP
       </Typography>
     </RootStyle>
   );

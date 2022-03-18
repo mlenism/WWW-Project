@@ -110,15 +110,16 @@ export default function User() {
   const handleClose = () => setOpen(false);
   const [selectRol, setSelectRol] = useState('');
   const [postUser, setPostUser] = useState();
+  const [userData, setUserData] = useState({});
 
   useEffect(() => {
     const usuarios = async () => {
       const response = await getUsuarios();
-      if (response !== undefined) SETUSERLIST(response);
+      if (response.length !== USERLIST.length) SETUSERLIST(response);
       return response;
     };
     usuarios();
-  }, []);
+  }, [USERLIST]);
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -179,9 +180,25 @@ export default function User() {
 
   const handleChange = (event) => {
     console.log(event.target.value);
+    const fieldName = event.target.name;
+    setUserData({ ...userData, [event.target.id]: event.target.value });
     setSelectRol(event.target.value);
   };
 
+  const sendData = () => {
+    if (selectRol === 1) {
+      setUserData({ ...userData, is_superuser: true, is_staff: true });
+    }
+    if (selectRol === 2) {
+      setUserData({ ...userData, is_superuser: false, is_staff: true });
+    }
+    if (selectRol === 3) {
+      setUserData({ ...userData, is_superuser: false, is_staff: false });
+    }
+    addUsuario(userData);
+
+    handleClose();
+  };
   return (
     <Page title="User | Minimal-UI">
       <Container>
@@ -266,6 +283,9 @@ export default function User() {
                     <MenuItem value={3}>Pantalla</MenuItem>
                   </Select>
                 </FormControl>
+                <Grid>
+                  <Button onClick={() => sendData()}>Hey</Button>
+                </Grid>
               </Grid>
             </Grid>
           </Modal>
