@@ -18,6 +18,9 @@ from UserApp.serializers import PostProgramaPublicidadSerializer, ProgramaPublic
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
 from UserApp.authentication_mixins import Authentication
+from datetime import date, timedelta
+from django.db.models import Count
+from django.db.models import F
 
 from gtts import gTTS
 
@@ -106,6 +109,7 @@ class Login(ObtainAuthToken):
 		else:
 			return Response({'errror':'Nombre de usuario o contraseña incorrectos.'},status=status.HTTP_400_BAD_REQUEST)
 
+
 class Logout(APIView):
 
 	def post(self,request,*args,**kwargs):
@@ -120,6 +124,53 @@ class Logout(APIView):
 		else:
 			return Response({'error':'Formulario incorrecto'},status=status.HTTP_400_BAD_REQUEST)
 
+
+class Estadisticas(APIView):
+
+	def get(self,request,*args,**kwargs):
+		# Obetner la cantidad de turnos por día para cada servicio
+		service_name = 'servicio_codigo__servicio_nombre'
+		servicios_x_dia = Turno.objects.filter(turno_fecha__gte=date.today()).values(service_name).annotate(count=Count(service_name)).order_by('count')
+		turnos_servicio_x_dia = {}
+		for dict in servicios_x_dia:
+			turnos_servicio_x_dia[dict['servicio_codigo__servicio_nombre']]=dict['count']
+		
+		# Obtener comparacion de servicios los ultimos 10 dias
+		ultimos_10_dias = date.today()-timedelta(days=10)
+		general = Turno.objects.filter(servicio_codigo__servicio_nombre='GENERAL', turno_fecha__lte=date.today(), turno_fecha__gt=ultimos_10_dias).values('turno_fecha').annotate(count=Count('turno_fecha')).order_by('turno_fecha')
+		imp_exp = Turno.objects.filter(servicio_codigo__servicio_nombre='IMPORTACION Y EXPORTACION', turno_fecha__lte=date.today(), turno_fecha__gt=ultimos_10_dias).values('turno_fecha').annotate(count=Count('turno_fecha')).order_by('turno_fecha')
+		transac = Turno.objects.filter(servicio_codigo__servicio_nombre='TRANSACCION DOLARES', turno_fecha__lte=date.today(), turno_fecha__gt=ultimos_10_dias).values('turno_fecha').annotate(count=Count('turno_fecha')).order_by('turno_fecha')
+		vip = Turno.objects.filter(servicio_codigo__servicio_nombre='VIP', turno_fecha__lte=date.today(), turno_fecha__gt=ultimos_10_dias).values('turno_fecha').annotate(count=Count('turno_fecha')).order_by('turno_fecha')
+		seguros = Turno.objects.filter(servicio_codigo__servicio_nombre='SEGUROS', turno_fecha__lte=date.today(), turno_fecha__gt=ultimos_10_dias).values('turno_fecha').annotate(count=Count('turno_fecha')).order_by('turno_fecha')
+
+		list_aux = []
+		list_fechas = []
+		for dict2 in general:
+			list_aux.append(dict2['count'])
+			list_fechas.append(dict2['turno_fecha'])
+		general_data = {'name':'GENERAL','data':list_aux}
+		list_aux = []
+		for dict2 in imp_exp:
+			list_aux.append(dict2['count'])
+		imp_data = {'name':'IMPORTACION Y EXPORTACION','data':list_aux}
+		list_aux = []
+		for dict2 in transac:
+			list_aux.append(dict2['count'])
+		trans_data = {'name':'TRANSACCION DOLARES','data':list_aux}
+		list_aux = []
+		for dict2 in vip:
+			list_aux.append(dict2['count'])
+		vip_data = {'name':'VIP','data':list_aux}
+		list_aux = []
+		for dict2 in seguros:
+			list_aux.append(dict2['count'])
+		seguros_data = {'name':'SEGUROS','data':list_aux}
+		fechas_data = {'name':'FECHAS','data':list_fechas}
+		chart_data = [fechas_data, general_data, imp_data, trans_data, vip_data, seguros_data]
+		data_to_send = [turnos_servicio_x_dia,chart_data]
+
+		print(data_to_send)
+		return Response(data_to_send,status=status.HTTP_200_OK)
 
 
 class Aleatorio(APIView):
