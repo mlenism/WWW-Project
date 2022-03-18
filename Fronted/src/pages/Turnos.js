@@ -27,6 +27,8 @@ import {
   Modal,
   Box
 } from '@mui/material';
+import ReactHowler from 'react-howler';
+
 import { getTurnos } from '../apicore';
 
 // components
@@ -37,6 +39,7 @@ import Label from '../components/Label';
 import Scrollbar from '../components/Scrollbar';
 import SearchNotFound from '../components/SearchNotFound';
 import { UserListHead, UserListToolbar, UserMoreMenu } from '../components/_dashboard/user';
+
 //
 
 const TABLE_HEAD = [
@@ -89,6 +92,10 @@ function Turnos() {
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - USERLIST.length) : 0;
 
+  const [audioTurno, setAudioTurno] = useState(
+    <ReactHowler src="http://127.0.0.1:8000/static/DO-012.mp3" />
+  );
+
   let timer;
 
   const ButtonHandler = () => {
@@ -119,18 +126,19 @@ function Turnos() {
       const aux1 = localStorage.getItem('nuevoTurno');
       if (nuevoTurno !== aux1) {
         setNuevoTurno(aux1);
-
+        setAudioTurno(<ReactHowler src={`http://127.0.0.1:8000/static/${aux1}.mp3`} />);
         USERLIST.unshift(nuevoTurno);
         const aux = USERLIST.slice(0, 10);
         setUSERLIST(aux);
         modalHandler();
         console.log(aux);
+
         timer = setTimeout(closeModal, 1000);
       }
     };
     obtenerTurnos();
     // getNuevoTurno();
-    const interval = setInterval(() => getNuevoTurno(), 5000);
+    const interval = setInterval(() => getNuevoTurno(), 1000);
     return () => {
       clearInterval(interval);
     };
@@ -190,7 +198,6 @@ function Turnos() {
           <img alt="register" src="/static/illustrations/illustration_register.png" />
         </SectionStyle>
       </Card>
-
       <Container maxWidth="lg">
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
           <Typography variant="h4" gutterBottom>
@@ -212,6 +219,7 @@ function Turnos() {
             </Typography>
           </Box>
         </Modal>
+        <ReactHowler src={`http://127.0.0.1:8000/static/${nuevoTurno}.mp3`} />
         <Card>
           <Scrollbar>
             <TableContainer sx={{ minWidth: 100 }}>

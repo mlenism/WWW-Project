@@ -138,6 +138,7 @@ function Caja() {
     const response = await saltarTurno({ turno_codigo: turnoInfo.turno_codigo });
     const response2 = await asignarTurno(caja);
     setTurnoInfo(response2[0]);
+    localStorage.setItem('nuevoTurno', response2[0].consecutivo);
     console.log(response);
   };
   return (

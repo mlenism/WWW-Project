@@ -1,7 +1,7 @@
 import { useFormik } from 'formik';
 import { useState } from 'react';
 // material
-import { Container, Stack, Typography, Box, Card, Grid, Button, Modal } from '@mui/material';
+import { Container, Stack, Typography, Box, Card, Grid, Button, Modal, Link } from '@mui/material';
 import ReactHowler from 'react-howler';
 
 import { styled } from '@mui/material/styles';
@@ -97,24 +97,26 @@ export default function Publicidad() {
               </Stack>
             </Card>
           </Grid>
-          <Grid key="cargarPublicidad" item xs={12} sm={6} md={3}>
-            <Card>
-              <Box sx={{ pt: '100%', position: 'relative' }}>
-                <ImgStyle
-                  onClick={() => modalHandler()}
-                  alt="product_1"
-                  src="/static/illustrations/programacion.png"
-                />
-              </Box>
+          <Grid key="crearProgramacion" item xs={12} sm={6} md={3}>
+            <Link to="/programacion">
+              <Card>
+                <Box sx={{ pt: '100%', position: 'relative' }}>
+                  <ImgStyle
+                    onClick={() => modalHandler()}
+                    alt="product_1"
+                    src="/static/illustrations/programacion.png"
+                  />
+                </Box>
 
-              <Stack spacing={2} sx={{ p: 3 }}>
-                <Button onClick={() => modalHandler()}>
-                  <Typography align="center" variant="subtitle2" noWrap>
-                    Crear programaciones
-                  </Typography>
-                </Button>
-              </Stack>
-            </Card>
+                <Stack spacing={2} sx={{ p: 3 }}>
+                  <Button onClick={() => modalHandler()}>
+                    <Typography align="center" variant="subtitle2" noWrap>
+                      Crear programaciones
+                    </Typography>
+                  </Button>
+                </Stack>
+              </Card>
+            </Link>
           </Grid>
         </Grid>
       </Container>

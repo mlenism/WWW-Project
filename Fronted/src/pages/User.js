@@ -24,7 +24,11 @@ import {
   TablePagination,
   Modal,
   Grid,
-  TextField
+  TextField,
+  FormControl,
+  Select,
+  MenuItem,
+  InputLabel
 } from '@mui/material';
 // components
 import Page from '../components/Page';
@@ -52,7 +56,7 @@ const style = {
   top: '50%',
   left: '50%',
   transform: 'translate(-50%, -50%)',
-  width: 400,
+  width: 600,
   bgcolor: 'background.paper',
   border: '2px solid #000',
   boxShadow: 24,
@@ -104,6 +108,8 @@ export default function User() {
   const [open, setOpen] = useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
+  const [selectRol, setSelectRol] = useState('');
+  const [postUser, setPostUser] = useState();
 
   useEffect(() => {
     const usuarios = async () => {
@@ -171,6 +177,11 @@ export default function User() {
     console.log('Formulario');
   };
 
+  const handleChange = (event) => {
+    console.log(event.target.value);
+    setSelectRol(event.target.value);
+  };
+
   return (
     <Page title="User | Minimal-UI">
       <Container>
@@ -191,46 +202,57 @@ export default function User() {
               <Typography id="modal-modal-title" variant="h6" component="h2">
                 Crear usuario
               </Typography>
-              <TextField
-                autoFocus
-                margin="dense"
-                id="username"
-                label="Nombre de usuario"
-                fullWidth
-                variant="standard"
-              />
-              <TextField
-                autoFocus
-                margin="dense"
-                id="first_name"
-                label="Nombre"
-                fullWidth
-                variant="standard"
-              />
-              <TextField
-                autoFocus
-                margin="dense"
-                id="last_name"
-                label="Apellido"
-                fullWidth
-                variant="standard"
-              />
-              <TextField
-                autoFocus
-                margin="dense"
-                id="email"
-                label="Email"
-                fullWidth
-                variant="standard"
-              />
-              <TextField
-                autoFocus
-                margin="dense"
-                id="rol"
-                label="Rol"
-                fullWidth
-                variant="standard"
-              />
+              <Grid container>
+                <TextField
+                  autoFocus
+                  margin="dense"
+                  id="username"
+                  label="Nombre de usuario"
+                  fullWidth
+                  variant="standard"
+                />
+                <TextField
+                  autoFocus
+                  margin="dense"
+                  id="first_name"
+                  label="Nombre"
+                  fullWidth
+                  variant="standard"
+                />
+                <TextField
+                  autoFocus
+                  margin="dense"
+                  id="last_name"
+                  label="Apellido"
+                  fullWidth
+                  variant="standard"
+                />
+                <TextField
+                  autoFocus
+                  margin="dense"
+                  id="email"
+                  label="Email"
+                  fullWidth
+                  variant="standard"
+                />
+                <FormControl fullWidth>
+                  <InputLabel id="demo-simple-select-label" variant="standard">
+                    Rol
+                  </InputLabel>
+                  <Select
+                    labelId="demo-simple-select-label"
+                    id="rol"
+                    variant="standard"
+                    value={selectRol}
+                    label="Rol"
+                    onChange={handleChange}
+                  >
+                    <MenuItem value={1}>Administrador</MenuItem>
+                    <MenuItem value={2}>Operario de caja</MenuItem>
+                    <MenuItem value={3}>Pantalla</MenuItem>
+                  </Select>
+                </FormControl>
+              </Grid>
             </Grid>
           </Modal>
         </Stack>

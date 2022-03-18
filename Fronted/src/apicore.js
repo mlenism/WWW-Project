@@ -134,3 +134,11 @@ export const getPersona = (cc) =>
     .catch((err) => {
       console.log(err);
     });
+
+export const getEstadisticas = () =>
+  axios
+    .get(`${process.env.REACT_APP_API_URL}/estadisticas`)
+    .then((res) => res.data)
+    .catch((err) => {
+      console.log(err);
+    });

@@ -1,5 +1,6 @@
 // material
 import { Box, Grid, Container, Typography } from '@mui/material';
+import { useState, useEffect } from 'react';
 // components
 import Page from '../components/Page';
 import {
@@ -17,11 +18,20 @@ import {
   AppConversionRates
 } from '../components/_dashboard/app';
 
-import { usuario } from './Login';
+import { getEstadisticas } from '../apicore';
 // ----------------------------------------------------------------------
+const stats = {};
 
 export default function DashboardApp() {
-  console.log(usuario);
+  useEffect(() => {
+    const estadisticas = async () => {
+      const response = await getEstadisticas();
+      if (response !== undefined) stats.stat = response;
+      return response;
+    };
+    estadisticas();
+  }, []);
+
   return (
     <Page title="Administrador">
       <Container maxWidth="xl">
@@ -78,3 +88,4 @@ export default function DashboardApp() {
     </Page>
   );
 }
+export { stats };

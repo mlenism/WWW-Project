@@ -6,6 +6,7 @@ import { Card, Typography } from '@mui/material';
 // utils
 import { fShortenNumber } from '../../../utils/formatNumber';
 
+import { stats } from '../../../pages/DashboardApp';
 // ----------------------------------------------------------------------
 
 const RootStyle = styled(Card)(({ theme }) => ({
@@ -34,15 +35,15 @@ const IconWrapperStyle = styled('div')(({ theme }) => ({
 
 // ----------------------------------------------------------------------
 
-const TOTAL = 714000;
-
 export default function AppWeeklySales() {
+  console.log(stats, 'sssss');
+  console.log(stats.stat, 'sssss');
   return (
     <RootStyle>
       <IconWrapperStyle>
         <Icon icon={androidFilled} width={24} height={24} />
       </IconWrapperStyle>
-      <Typography variant="h3">2</Typography>
+      <Typography variant="h3">stats.stat</Typography>
       <Typography variant="subtitle2" sx={{ opacity: 0.72 }}>
         VIP
       </Typography>
