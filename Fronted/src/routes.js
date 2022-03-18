@@ -15,11 +15,8 @@ import Cedula from './pages/Cedula';
 import Turnos from './pages/Turnos';
 import Confirmado from './pages/Confirmado';
 import Publicidad from './pages/Publicidad';
-<<<<<<< HEAD
 import Caja from './pages/Caja';
-=======
 import Pantallas from './pages/Pantallas';
->>>>>>> bc971a2394acd0b188c2d7f26271dd0587dd8d47
 // ----------------------------------------------------------------------
 
 export default function Router() {
