@@ -42,7 +42,7 @@ export default function Router() {
         { path: 'cedula', element: <Cedula /> },
         { path: 'confirmado', element: <Confirmado /> },
         { path: 'turnos', element: <Turnos /> },
-        { path: '/', element: <Navigate to="/dashboard" /> },
+        { path: '/', element: <Navigate to="/login" /> },
         { path: '*', element: <Navigate to="/404" /> }
       ]
     },

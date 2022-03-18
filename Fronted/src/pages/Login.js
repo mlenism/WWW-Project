@@ -52,6 +52,7 @@ const ContentStyle = styled('div')(({ theme }) => ({
 }));
 
 // ----------------------------------------------------------------------
+const usuario = {};
 
 export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
@@ -80,6 +81,14 @@ export default function Login() {
     });
     if (response !== undefined) user = response;
 
+    //  usuario.usuario = user;
+
+    localStorage.setItem('token', user.token);
+    localStorage.setItem('username', user.ser.username);
+    localStorage.setItem('name', `${user.ser.first_name} ${user.ser.last_name}`);
+    localStorage.setItem('email', user.ser.email);
+    localStorage.setItem('sede_nombre', 'user.ser.sede_nombre');
+
     if (Object.keys(user).length === 3) {
       if (user.ser.is_staff === true && user.ser.is_superuser === true) {
         navigate('/dashboard');
@@ -94,7 +103,7 @@ export default function Login() {
   };
 
   return (
-    <RootStyle title="Login | Minimal-UI">
+    <RootStyle title="Login">
       <MHidden width="mdDown">
         <SectionStyle>
           <Typography variant="h3" sx={{ px: 5, mt: 10, mb: 5 }}>
@@ -157,3 +166,4 @@ export default function Login() {
     </RootStyle>
   );
 }
+export { usuario };
