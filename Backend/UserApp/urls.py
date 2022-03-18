@@ -2,6 +2,7 @@ from django.urls import path
 from rest_framework.urlpatterns import format_suffix_patterns
 from UserApp.views import UsuarioApi, Aleatorio, TurnoController, SedeController, ServicioController, CajaController, EstadoController
 from UserApp.views import PersonaController, PublicidadController, ProgramaPublicidadController, TurnoUpdateController, Login, Logout, UserToken
+from UserApp.views import Estadisticas
 
 urlpatterns = [
     path('usuarios', UsuarioApi.as_view()),
@@ -11,6 +12,8 @@ urlpatterns = [
     path('login', Login.as_view()),
     path('logout', Logout.as_view()),
     path('refresh-token',UserToken.as_view()),
+
+    path('estadisticas', Estadisticas.as_view()),
     
     path('turno',TurnoController.as_view({'post': 'postTurno','get': 'getTurno'  })),
     path('turno/<int:idcaja>/',TurnoController.as_view({'get': 'getTurno'})),
